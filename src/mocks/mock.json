@@ -1,0 +1,158 @@
+{
+  "trip": {
+    "locations": [
+      {
+        "type": "break",
+        "lat": 41.328843,
+        "lon": 19.816412,
+        "city": "left",
+        "original_index": 0
+      },
+      {
+        "type": "break",
+        "lat": 41.313536,
+        "lon": 19.815894,
+        "original_index": 1
+      }
+    ],
+    "legs": [
+      {
+        "maneuvers": [
+          {
+            "type": 3,
+            "instruction": "Drive south on Rruga Dedë Gjo Luli.",
+            "verbal_pre_transition_instruction": "Drive south on Rruga Dedë Gjo Luli.",
+            "verbal_post_transition_instruction": "Continue for a quarter mile.",
+            "street_names": [
+              "Rruga Dedë Gjo Luli"
+            ],
+            "time": 58.633,
+            "length": 0.362,
+            "cost": 138.161,
+            "begin_shape_index": 0,
+            "end_shape_index": 19,
+            "travel_mode": "drive",
+            "travel_type": "car"
+          },
+          {
+            "type": 10,
+            "instruction": "Turn right onto Bulevardi Gjergj Fishta.",
+            "verbal_transition_alert_instruction": "Turn right onto Bulevardi Gjergj Fishta.",
+            "verbal_pre_transition_instruction": "Turn right onto Bulevardi Gjergj Fishta.",
+            "verbal_post_transition_instruction": "Continue for a quarter mile.",
+            "street_names": [
+              "Bulevardi Gjergj Fishta"
+            ],
+            "time": 39.599,
+            "length": 0.222,
+            "cost": 70.858,
+            "begin_shape_index": 19,
+            "end_shape_index": 26,
+            "travel_mode": "drive",
+            "travel_type": "car"
+          },
+          {
+            "type": 15,
+            "instruction": "Turn left onto Rruga Sami Frashëri.",
+            "verbal_transition_alert_instruction": "Turn left onto Rruga Sami Frashëri.",
+            "verbal_pre_transition_instruction": "Turn left onto Rruga Sami Frashëri.",
+            "verbal_post_transition_instruction": "Continue for a quarter mile.",
+            "street_names": [
+              "Rruga Sami Frashëri"
+            ],
+            "time": 67.506,
+            "length": 0.306,
+            "cost": 141.835,
+            "begin_shape_index": 26,
+            "end_shape_index": 47,
+            "travel_mode": "drive",
+            "travel_type": "car"
+          },
+          {
+            "type": 26,
+            "instruction": "Enter the roundabout and take the 2nd exit onto Rruga Dëshmorët e 4 Shkurtit.",
+            "verbal_transition_alert_instruction": "Enter the roundabout and take the 2nd exit onto Rruga Dëshmorët e 4 Shkurtit.",
+            "verbal_pre_transition_instruction": "Enter the roundabout and take the 2nd exit onto Rruga Dëshmorët e 4 Shkurtit.",
+            "time": 8.861,
+            "length": 0.031,
+            "cost": 19.695,
+            "begin_shape_index": 47,
+            "end_shape_index": 57,
+            "roundabout_exit_count": 2,
+            "travel_mode": "drive",
+            "travel_type": "car"
+          },
+          {
+            "type": 27,
+            "instruction": "Exit the roundabout onto Rruga Dëshmorët e 4 Shkurtit.",
+            "verbal_pre_transition_instruction": "Exit the roundabout onto Rruga Dëshmorët e 4 Shkurtit.",
+            "verbal_post_transition_instruction": "Continue for a quarter mile.",
+            "street_names": [
+              "Rruga Dëshmorët e 4 Shkurtit"
+            ],
+            "time": 55.065,
+            "length": 0.34,
+            "cost": 86.508,
+            "begin_shape_index": 57,
+            "end_shape_index": 80,
+            "travel_mode": "drive",
+            "travel_type": "car"
+          },
+          {
+            "type": 15,
+            "instruction": "Turn left.",
+            "verbal_transition_alert_instruction": "Turn left.",
+            "verbal_pre_transition_instruction": "Turn left. Then You will arrive at your destination.",
+            "verbal_post_transition_instruction": "Continue for 30 feet.",
+            "time": 3.974,
+            "length": 0.004,
+            "cost": 27.6,
+            "begin_shape_index": 80,
+            "end_shape_index": 81,
+            "verbal_multi_cue": true,
+            "travel_mode": "drive",
+            "travel_type": "car"
+          },
+          {
+            "type": 4,
+            "instruction": "You have arrived at your destination.",
+            "verbal_transition_alert_instruction": "You will arrive at your destination.",
+            "verbal_pre_transition_instruction": "You have arrived at your destination.",
+            "time": 0,
+            "length": 0,
+            "cost": 0,
+            "begin_shape_index": 81,
+            "end_shape_index": 81,
+            "travel_mode": "drive",
+            "travel_type": "car"
+          }
+        ],
+        "summary": {
+          "has_time_restrictions": false,
+          "min_lat": 41.313533,
+          "min_lon": 19.813264,
+          "max_lat": 41.328792,
+          "max_lon": 19.817446,
+          "time": 233.642,
+          "length": 1.268,
+          "cost": 484.659
+        },
+        "shape": "qhoymAsenxd@dG_A~KgBpJyAvCa@lB[hB[~Do@vEw@~M}BbToDflA{T|VyEjDo@fEu@jc@kInYoFxc@kIfGmAnEu@d@fFtRz{BdC`[fDr_@hDx`@zBxVz@|IzBe@dPuCp@KrCg@pCg@~S{DdGeAxQeDjEu@n_@wGvAWhB]xNkCtNkCxDs@pMaCxt@_N`Es@|\\kG~AY|@Qh@rB`AzAtAz@|AR~ASbBmAfAwB^sC?kAGq@|E{@f\\cG`PuClDo@b\\_GdCe@be@oIlHsAlDo@`@GpFaAb[yFrB_@lB]bLsBhDo@rDq@vT}Ddl@oKzDClH^xBf@z@f@t@oD"
+      }
+    ],
+    "summary": {
+      "has_time_restrictions": false,
+      "min_lat": 41.313533,
+      "min_lon": 19.813264,
+      "max_lat": 41.328792,
+      "max_lon": 19.817446,
+      "time": 233.642,
+      "length": 1.268,
+      "cost": 484.659
+    },
+    "status_message": "Found route between points",
+    "status": 0,
+    "units": "miles",
+    "language": "en-US"
+  }
+}
