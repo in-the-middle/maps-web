@@ -91,7 +91,7 @@ function Map() {
         <Polyline pathOptions={routeOptions} positions={coords} />
         <Marker icon={MyMarkerIcon} position={coords[0]}></Marker>
         <Marker icon={FriendsMarkerIcon} position={coords[coords.length - 1]} />
-        <Marker icon={CenterMarkerIcon} position={coords[coords.length / 2]} />
+        <Marker icon={CenterMarkerIcon} position={coords[(coords.length - coords.length % 2) / 2]} />
       </MapContainer>
     </div>
   )
