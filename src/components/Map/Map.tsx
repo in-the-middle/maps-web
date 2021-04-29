@@ -8,8 +8,12 @@ import {
   Rectangle,
 } from 'react-leaflet'
 import 'components/Map/Map.css'
-import 'mocks/mock.json'
-import { StartMarker } from 'uikit/Icons'
+import route from 'mocks/mock.json'
+import {
+  MyMarkerIcon,
+  FriendsMarkerIcon,
+  CenterMarkerIcon,
+} from 'assets/icons/Map/MyMarker'
 
 function decode(str: string, precision?: number) {
   var index = 0,
@@ -56,16 +60,14 @@ function decode(str: string, precision?: number) {
 }
 
 const bounds: [number, number][] = [
-  [41.313533, 19.813264],
-  [41.328792, 19.817446],
+  [route.trip.legs[0].summary.min_lat, route.trip.legs[0].summary.min_lon],
+  [route.trip.legs[0].summary.max_lat, route.trip.legs[0].summary.max_lon],
 ]
 
-const limeOptions = { color: 'magenta' }
+const routeOptions = { color: '#01B0E8', weight: 8 }
 
 function Map() {
-  const coords: [number, number][] = decode(
-    'qhoymAsenxd@dG_A~KgBpJyAvCa@lB[hB[~Do@vEw@~M}BbToDflA{T|VyEjDo@fEu@jc@kInYoFxc@kIfGmAnEu@d@fFtRz{BdC`[fDr_@hDx`@zBxVz@|IzBe@dPuCp@KrCg@pCg@~S{DdGeAxQeDjEu@n_@wGvAWhB]xNkCtNkCxDs@pMaCxt@_N`Es@|\\kG~AY|@Qh@rB`AzAtAz@|AR~ASbBmAfAwB^sC?kAGq@|E{@f\\cG`PuClDo@b\\_GdCe@be@oIlHsAlDo@`@GpFaAb[yFrB_@lB]bLsBhDo@rDq@vT}Ddl@oKzDClH^xBf@z@f@t@oD',
-  )
+  const coords: [number, number][] = decode(route.trip.legs[0].shape)
 
   return (
     <div className="leaflet-container">
@@ -86,10 +88,10 @@ function Map() {
             />
           </LayersControl.BaseLayer>
         </LayersControl>
-        <Polyline pathOptions={limeOptions} positions={coords} />
-        <Marker position={coords[0]}></Marker>
-        <Marker position={coords[coords.length - 1]} />
-        <Marker position={coords[coords.length / 2]} />
+        <Polyline pathOptions={routeOptions} positions={coords} />
+        <Marker icon={MyMarkerIcon} position={coords[0]}></Marker>
+        <Marker icon={FriendsMarkerIcon} position={coords[coords.length - 1]} />
+        <Marker icon={CenterMarkerIcon} position={coords[coords.length / 2]} />
       </MapContainer>
     </div>
   )
