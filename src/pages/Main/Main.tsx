@@ -2,7 +2,11 @@ import React from 'react'
 import Map from 'components/Map/Map'
 
 function Main() {
-  return <Map />
+  return (
+    <div>
+      <Map />
+    </div>
+  )
 }
 
 export default Main
