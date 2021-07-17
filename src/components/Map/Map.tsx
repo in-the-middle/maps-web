@@ -21,6 +21,12 @@ import {
 import ConfirmButton from 'components/ConfirmButton/ConfirmButton'
 import MyInfo from './Kitten'
 
+declare global {
+  interface Window {
+    _env_:any;
+  }
+}
+
 function decode(str: any, precision?: number) {
   var index = 0,
     lat = 0,
@@ -78,7 +84,7 @@ let centerTime = [] as any
 let centerLat = 0,
   centerLon = 0
 
-const apiService = new DefaultApi('http://localhost:8080')
+const apiService = new DefaultApi(window._env_.REACT_APP_MAPS_SERVICE_URL)
 
 async function routeD(handleVisibility: any) {
   console.log(markers)
