@@ -3,8 +3,8 @@ steps:
 - name: 'gcr.io/cloud-builders/yarn'
   args: ['install']
 # Test
-- name: 'gcr.io/cloud-builders/yarn'
-  args: ['test']
+#- name: 'gcr.io/cloud-builders/yarn'
+#  args: ['test']
 # Build
 - name: 'gcr.io/cloud-builders/yarn'
   args: ['build']
