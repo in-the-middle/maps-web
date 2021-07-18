@@ -1,0 +1,13 @@
+steps:
+# Install
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['install']
+# Test
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['test']
+# Build
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['build']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ["build", "-t", "us-central1-docker.pkg.dev/tactical-grid-319816/maps/maps-ui", "."]
+images: ["us-central1-docker.pkg.dev/tactical-grid-319816/maps/maps-ui"]
