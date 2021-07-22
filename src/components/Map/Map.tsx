@@ -27,7 +27,7 @@ import styled from 'styled-components'
 
 declare global {
   interface Window {
-    _env_:any;
+    _env_: any
   }
 }
 
@@ -173,15 +173,6 @@ class Map extends React.Component<MyProps, any> {
   }
 
   async routeD(handleVisibility: any) {
-    if (!this.state.correctMarkers) {
-      let connector = markers
-      markers = []
-      for (let i = 0; i < connector.length; i += 2) {
-        markers.push(connector[i])
-      }
-      this.setState({ correctMarkers: true })
-    }
-
     let usersObject = [] as any
     for (let i = 0; i < markers.length; i++) {
       let userInfo = {
