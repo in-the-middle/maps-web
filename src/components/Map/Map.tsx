@@ -199,6 +199,9 @@ class Map extends React.Component<MyProps, any> {
           lon: markers[i][1],
         },
         mode: this.state.mode,
+        includeTolls: this.state.includeTolls,
+        includeHighways: this.state.includeHighways,
+        includeFerries: this.state.includeFerries,
       }
       usersObject.push(userInfo)
     }

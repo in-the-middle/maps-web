@@ -536,6 +536,21 @@ export class TestSampleData {
                 { containerClass, propertyName: "mode", example: "null", isNullable: false },
                 () => this.sampleTravelModeDTO()
             ),
+            includeTolls: this.generate(
+                template?.includeTolls,
+                { containerClass, propertyName: "includeTolls", example: "null", isNullable: false },
+                () => this.sampleboolean()
+            ),
+            includeHighways: this.generate(
+                template?.includeHighways,
+                { containerClass, propertyName: "includeHighways", example: "null", isNullable: false },
+                () => this.sampleboolean()
+            ),
+            includeFerries: this.generate(
+                template?.includeFerries,
+                { containerClass, propertyName: "includeFerries", example: "null", isNullable: false },
+                () => this.sampleboolean()
+            ),
         };
     }
 

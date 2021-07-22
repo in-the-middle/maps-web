@@ -75,4 +75,7 @@ export enum TravelModeDTO {
 export interface UserInfoDTO {
   location?: LocationDTO
   mode?: TravelModeDTO
+  includeTolls?: boolean
+  includeHighways?: boolean
+  includeFerries?: boolean
 }
