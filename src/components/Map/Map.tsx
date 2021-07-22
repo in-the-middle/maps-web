@@ -105,7 +105,7 @@ function LocationMarker() {
     map.locate().on('locationfound', function (e) {
       map.flyTo(e.latlng, map.getZoom())
       setBbox(e.bounds.toBBoxString().split(',') as any)
-      markers.push([e.latlng.lat, e.latlng.lng])
+//       markers.push([e.latlng.lat, e.latlng.lng])
       setPosition(e.latlng)
       console.log(e.latlng)
       console.log(position)
