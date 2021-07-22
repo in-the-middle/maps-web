@@ -25,6 +25,12 @@ import AvoidSwitch from 'components/avoidSwitch/avoidSwitch'
 
 import styled from 'styled-components'
 
+declare global {
+  interface Window {
+    _env_:any;
+  }
+}
+
 function decode(str: any, precision?: number) {
   var index = 0,
     lat = 0,
@@ -82,7 +88,7 @@ let centerTime = [] as any
 let centerLat = 0,
   centerLon = 0
 
-const apiService = new DefaultApi('http://localhost:8080')
+const apiService = new DefaultApi(window._env_.REACT_APP_MAPS_SERVICE_URL)
 
 const routeOptions = { color: '#01B0E8', weight: 8 }
 
