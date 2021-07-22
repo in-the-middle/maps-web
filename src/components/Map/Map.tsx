@@ -26,6 +26,12 @@ import AvoidSwitch from 'components/avoidSwitch/avoidSwitch'
 
 import styled from 'styled-components'
 
+declare global {
+  interface Window {
+    _env_: any
+  }
+}
+
 function decode(str: any, precision?: number) {
   var index = 0,
     lat = 0,
