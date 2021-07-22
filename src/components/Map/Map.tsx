@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   MapContainer,
   TileLayer,
@@ -7,8 +7,9 @@ import {
   Polyline,
   MapConsumer,
   ZoomControl,
+  useMap,
 } from 'react-leaflet'
-import L from 'leaflet'
+import L, { LatLngExpression } from 'leaflet'
 import 'components/Map/Map.css'
 import { MyMarkerIcon, FriendsMarkerIcon } from 'assets/icons/Map/MyMarker'
 import { LatLngBoundsExpression } from 'leaflet'
@@ -24,12 +25,6 @@ import VehicleButton from 'components/VehicleButton/vehicleButton'
 import AvoidSwitch from 'components/avoidSwitch/avoidSwitch'
 
 import styled from 'styled-components'
-
-declare global {
-  interface Window {
-    _env_: any
-  }
-}
 
 function decode(str: any, precision?: number) {
   var index = 0,
@@ -88,7 +83,7 @@ let centerTime = [] as any
 let centerLat = 0,
   centerLon = 0
 
-const apiService = new DefaultApi(window._env_.REACT_APP_MAPS_SERVICE_URL)
+const apiService = new DefaultApi('http://localhost:8080')
 
 const routeOptions = { color: '#01B0E8', weight: 8 }
 
@@ -98,6 +93,28 @@ interface RouteProps {
   centerRoutes: Array<Array<Array<number>>>
   centerLat: number
   centerLon: number
+}
+
+function LocationMarker() {
+  const [position, setPosition] = useState([0, 0] as LatLngExpression)
+  const [bbox, setBbox] = useState([])
+
+  const map = useMap()
+
+  useEffect(() => {
+    map.locate().on('locationfound', function (e) {
+      map.flyTo(e.latlng, map.getZoom())
+      setBbox(e.bounds.toBBoxString().split(',') as any)
+      markers.push([e.latlng.lat, e.latlng.lat])
+      setPosition(e.latlng)
+      console.log(e.latlng)
+      console.log(position)
+    })
+  }, [map])
+
+  return position === null ? null : (
+    <Marker position={position} icon={MyMarkerIcon}></Marker>
+  )
 }
 
 class Map extends React.Component<MyProps, any> {
@@ -173,6 +190,7 @@ class Map extends React.Component<MyProps, any> {
   }
 
   async routeD(handleVisibility: any) {
+    console.log(markers)
     let usersObject = [] as any
     for (let i = 0; i < markers.length; i++) {
       let userInfo = {
@@ -314,6 +332,8 @@ class Map extends React.Component<MyProps, any> {
               />
             </LayersControl.BaseLayer>
           </LayersControl>
+
+          <LocationMarker></LocationMarker>
 
           {this.state.visible ? (
             <this.Routes
