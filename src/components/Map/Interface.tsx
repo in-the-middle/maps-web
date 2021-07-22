@@ -13,7 +13,7 @@ function MyInfo(Props: MyInfoProps) {
 
   React.useEffect(() => {
     L.DomEvent.disableClickPropagation(divRef.current)
-    //L.DomEvent.disableScrollPropagation(divRef.current);
+    L.DomEvent.disableScrollPropagation(divRef.current)
   })
 
   return (

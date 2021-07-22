@@ -1,12 +1,12 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   MapContainer,
   TileLayer,
   Marker,
   LayersControl,
   Polyline,
-  useMapEvents,
   MapConsumer,
+  ZoomControl,
 } from 'react-leaflet'
 import L from 'leaflet'
 import 'components/Map/Map.css'
@@ -18,8 +18,12 @@ import {
   RouteInputDTO,
   TravelModeDTO,
 } from '../../mapsApi/model'
-import ConfirmButton from 'components/ConfirmButton/ConfirmButton'
-import MyInfo from './Kitten'
+
+import SearchInput from 'components/SearchInput/searchInput'
+import VehicleButton from 'components/VehicleButton/vehicleButton'
+import AvoidSwitch from 'components/avoidSwitch/avoidSwitch'
+
+import styled from 'styled-components'
 
 function decode(str: any, precision?: number) {
   var index = 0,
@@ -71,7 +75,7 @@ let bounds: LatLngBoundsExpression = [
   [40.93053, -73.546144],
 ]
 
-let markers = [[40.722699, -73.73593]]
+let markers = [] as any
 let usersInfo = { users: [] } as CenterInputDTO
 let centerRoutes = [[]]
 let centerTime = [] as any
@@ -80,104 +84,223 @@ let centerLat = 0,
 
 const apiService = new DefaultApi('http://localhost:8080')
 
-async function routeD(handleVisibility: any) {
-  console.log(markers)
-  let usersObject = [] as any
-  for (let i = 1; i < markers.length; i += 2) {
-    let userInfo = {
-      location: {
-        lat: markers[i][0],
-        lon: markers[i][1],
-      },
-      mode: 'DRIVING',
-    }
-    usersObject.push(userInfo)
-  }
-  usersInfo = { users: usersObject }
-  console.log(usersInfo)
-  let CenterPoint = await apiService.getCenter({ centerInputDTO: usersInfo })
-  centerLat = CenterPoint.location?.lat!
-  centerLon = CenterPoint.location?.lon!
+const routeOptions = { color: '#01B0E8', weight: 8 }
 
-  console.log(CenterPoint)
-
-  for (let i = 1; i < markers.length; i += 2) {
-    let APoint = { lat: markers[i][0], lon: markers[i][1] }
-    let BPoint = {
-      lat: CenterPoint.location?.lat,
-      lon: CenterPoint.location?.lon,
-    }
-    let route = {
-      mode: TravelModeDTO.DRIVING,
-      origin: APoint,
-      destination: BPoint,
-      includeTolls: false,
-      includeHighways: false,
-      includeFerries: false,
-    } as RouteInputDTO
-    let routeResult = await apiService.getRoute({ routeInputDTO: route })
-    centerTime.push(routeResult.summary?.time)
-    coords = decode(routeResult.shape)
-    centerRoutes.push(coords)
-  }
-  handleVisibility()
-  console.log(centerRoutes)
-}
+interface MyProps {}
 
 interface RouteProps {
-  visible: boolean
   centerRoutes: Array<Array<Array<number>>>
   centerLat: number
   centerLon: number
 }
 
-function Routes(Props: RouteProps) {
-  console.log(centerRoutes)
-  return Props.visible ? (
-    <div>
-      <Marker icon={FriendsMarkerIcon} position={[centerLat, centerLon]} />
-      <>
-        {centerRoutes.map((item, index) => {
-          return index !== 0 ? (
-            <Polyline
-              positions={centerRoutes[index]}
-              pathOptions={routeOptions}
-              key={index}
-            />
-          ) : null
-        })}
-      </>
-    </div>
-  ) : null
-}
-
-const routeOptions = { color: '#01B0E8', weight: 8 }
-
-interface MyProps {}
-
-interface MyState {
-  visible: boolean
-}
-
-class Map extends React.Component<MyProps, MyState> {
+class Map extends React.Component<MyProps, any> {
   constructor(props: any) {
     super(props)
     this.state = {
       visible: false,
+      settingsMenuOpened: false,
+      mode: 'DRIVING',
+      modeDTO: TravelModeDTO.DRIVING,
+      includeTolls: false,
+      includeHighways: false,
+      includeFerries: false,
+      correctMarkers: false,
     }
     this.handleVisibility = this.handleVisibility.bind(this)
+    this.handleModeDriving = this.handleModeDriving.bind(this)
+    this.handleModeBicycling = this.handleModeBicycling.bind(this)
+    this.handleModeWalking = this.handleModeWalking.bind(this)
+    this.handleModeTransit = this.handleModeTransit.bind(this)
   }
 
   handleVisibility() {
-    this.setState((prevState) => ({
-      visible: !prevState.visible,
+    this.setState(() => ({
+      visible: true,
     }))
+  }
+
+  handleModeDriving() {
+    this.setState(() => ({
+      mode: 'DRIVING',
+      modeDTO: TravelModeDTO.DRIVING,
+    }))
+  }
+
+  handleModeBicycling() {
+    this.setState(() => ({
+      mode: 'BICYCLING',
+      modeDTO: TravelModeDTO.BICYCLING,
+    }))
+  }
+
+  handleModeWalking() {
+    this.setState(() => ({
+      mode: 'WALKING',
+      modeDTO: TravelModeDTO.WALKING,
+    }))
+  }
+
+  handleModeTransit() {
+    this.setState(() => ({
+      mode: 'TRANSIT',
+      modeDTO: TravelModeDTO.TRANSIT,
+    }))
+  }
+
+  handleTolls() {
+    this.setState(() => ({
+      includeTolls: !this.state.includeTolls,
+    }))
+  }
+
+  handleHighways() {
+    this.setState(() => ({
+      includeHighways: !this.state.includeHighways,
+    }))
+  }
+
+  handleFerries() {
+    this.setState(() => ({
+      includeFerries: !this.state.includeFerries,
+    }))
+  }
+
+  async routeD(handleVisibility: any) {
+    if (!this.state.correctMarkers) {
+      let connector = markers
+      markers = []
+      for (let i = 0; i < connector.length; i += 2) {
+        markers.push(connector[i])
+      }
+      this.setState({ correctMarkers: true })
+    }
+
+    let usersObject = [] as any
+    for (let i = 0; i < markers.length; i++) {
+      let userInfo = {
+        location: {
+          lat: markers[i][0],
+          lon: markers[i][1],
+        },
+        mode: this.state.mode,
+      }
+      usersObject.push(userInfo)
+    }
+    usersInfo = { users: usersObject }
+    let CenterPoint = await apiService.getCenter({ centerInputDTO: usersInfo })
+    centerLat = CenterPoint.location?.lat!
+    centerLon = CenterPoint.location?.lon!
+    centerRoutes = []
+    for (let i = 0; i < markers.length; i++) {
+      let APoint = { lat: markers[i][0], lon: markers[i][1] }
+      let BPoint = {
+        lat: CenterPoint.location?.lat,
+        lon: CenterPoint.location?.lon,
+      }
+      let route = {
+        mode: this.state.modeDTO,
+        origin: APoint,
+        destination: BPoint,
+        includeTolls: this.state.includeTolls,
+        includeHighways: this.state.includeHighways,
+        includeFerries: this.state.includeFerries,
+      } as RouteInputDTO
+      console.log(route)
+      let routeResult = await apiService.getRoute({ routeInputDTO: route })
+      centerTime.push(routeResult.summary?.time)
+      coords = decode(routeResult.shape)
+      centerRoutes.push(coords)
+    }
+    handleVisibility()
+  }
+
+  Routes(Props: RouteProps) {
+    return (
+      <div>
+        <Marker icon={FriendsMarkerIcon} position={[centerLat, centerLon]} />
+        <>
+          {centerRoutes.map((item, index) => {
+            return (
+              <Polyline
+                positions={centerRoutes[index]}
+                pathOptions={routeOptions}
+                key={index}
+              />
+            )
+          })}
+        </>
+      </div>
+    )
   }
 
   render() {
     return (
       <div className="leaflet-container">
-        <MapContainer bounds={bounds} scrollWheelZoom={true}>
+        <Container>
+          <InputContainer>
+            <SearchInput title={'Enter the point'} icon={'first'} />
+            <SearchInput title={'Enter the point'} icon={'second'} />
+            {this.state.settingsMenuOpened ? (
+              <AvoidContainer>
+                <AvoidSwitch
+                  title={'avoid tolls'}
+                  enabled={this.state.includeTolls}
+                  onPress={() => this.handleTolls()}
+                />
+                <AvoidSwitch
+                  title={'avoid highways'}
+                  enabled={this.state.includeHighways}
+                  onPress={() => this.handleHighways()}
+                />
+                <AvoidSwitch
+                  title={'avoid ferries'}
+                  enabled={this.state.includeFerries}
+                  onPress={() => this.handleFerries()}
+                />
+              </AvoidContainer>
+            ) : null}
+          </InputContainer>
+          <ButtonContainer>
+            <VehicleButtonContainer>
+              <VehicleButton
+                icon={'car'}
+                onPress={() => this.handleModeDriving()}
+              />
+              <VehicleButton
+                icon={'bike'}
+                onPress={() => this.handleModeBicycling()}
+              />
+              <VehicleButton
+                icon={'walking'}
+                onPress={() => this.handleModeWalking()}
+              />
+              <VehicleButton
+                icon={'public'}
+                onPress={() => this.handleModeTransit()}
+              />
+            </VehicleButtonContainer>
+            <ControlButtonContainer>
+              <BuildButton onClick={() => this.routeD(this.handleVisibility)}>
+                Build
+              </BuildButton>
+              <SettingsButton
+                onClick={() =>
+                  this.setState({
+                    settingsMenuOpened: !this.state.settingsMenuOpened,
+                  })
+                }
+              >
+                Settings
+              </SettingsButton>
+            </ControlButtonContainer>
+          </ButtonContainer>
+        </Container>
+        <MapContainer
+          bounds={bounds}
+          scrollWheelZoom={true}
+          zoomControl={false}
+        >
           <LayersControl position="topright">
             <LayersControl.BaseLayer checked name="Light Theme">
               <TileLayer
@@ -195,18 +318,13 @@ class Map extends React.Component<MyProps, MyState> {
             </LayersControl.BaseLayer>
           </LayersControl>
 
-          <Routes
-            centerRoutes={centerRoutes}
-            centerLat={centerLat}
-            centerLon={centerLon}
-            visible={this.state.visible}
-          />
-
-          <MyInfo
-            centerTime={centerTime}
-            onClick={routeD}
-            visibility={this.handleVisibility}
-          />
+          {this.state.visible ? (
+            <this.Routes
+              centerRoutes={centerRoutes}
+              centerLat={centerLat}
+              centerLon={centerLon}
+            />
+          ) : null}
 
           <MapConsumer>
             {(map: L.Map | L.LayerGroup<any>) => {
@@ -218,6 +336,7 @@ class Map extends React.Component<MyProps, MyState> {
               return null
             }}
           </MapConsumer>
+          <ZoomControl position="topright" />
         </MapContainer>
       </div>
     )
@@ -225,3 +344,101 @@ class Map extends React.Component<MyProps, MyState> {
 }
 
 export default Map
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  z-index: 1000;
+  position: absolute;
+  top: 30px;
+  left: 30px;
+`
+
+const InputContainer = styled.div`
+  flex: 1;
+  margin-right: 7.5px;
+`
+
+const ButtonContainer = styled.div`
+  flex: 1;
+`
+
+const VehicleButtonContainer = styled.div`
+  display: flex;
+  height: 50px;
+  width: 375px;
+  flex-direction: row;
+  margin-bottom: 15px;
+  justify-content: space-between;
+`
+
+const ControlButtonContainer = styled.div`
+  display: flex;
+  height: 50px;
+  width: 375px;
+  flex-direction: row;
+  margin-bottom: 15px;
+  justify-content: space-between;
+`
+
+const SettingsButton = styled.button`
+  height: 50px;
+  display: flex;
+  align-self: center;
+  flex-direction: row;
+  margin-left: 7.5px;
+  margin-right: 7.5px;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  border-radius: 12px;
+  background: #01b0e8;
+  border: 0px;
+  font-weight: 500;
+  font-size: 20px;
+  color: white;
+
+  :hover {
+    background: #0097c9;
+    cursor: pointer;
+  }
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+`
+
+const BuildButton = styled.button`
+  height: 50px;
+  display: flex;
+  align-self: center;
+  flex-direction: row;
+  margin-left: 7.5px;
+  margin-right: 7.5px;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  border-radius: 12px;
+  background-color: #73b15b;
+  border: 0px;
+  font-weight: 500;
+  font-size: 20px;
+  color: white;
+
+  :hover {
+    background: #609c48;
+    cursor: pointer;
+  }
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+`
+
+const AvoidContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 150px;
+  width: 375px;
+  align-self: center;
+  border-radius: 12px;
+  background: rgba(245, 255, 245, 0.9);
+  margin-bottom: 15px;
+`

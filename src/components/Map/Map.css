@@ -3,36 +3,3 @@
   height: 100vh;
   z-index: 0;
 }
-
-.buttonMain {
-  color: white;
-  background-color: #73b15b;
-  width: 63px;
-  height: 33px;
-  font-size: 20px;
-  border-radius: 8px;
-  border: 0px;
-  z-index: 1000;
-  position: absolute;
-  top: 15px;
-  left: 50px;
-}
-
-.zone {
-  border: 0px solid red;
-}
-
-.container {
-  width: 200px;
-  height: 200px;
-  background-color: white;
-  z-index: 1000;
-  position: absolute;
-  top: 100px;
-  left: 15px;
-}
-
-.list {
-  list-style-type: none;
-  font-size: 15px;
-}
