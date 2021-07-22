@@ -50,13 +50,8 @@
     ]
   },
   "devDependencies": {
-<<<<<<< HEAD
     "@types/leaflet": "^1.7.0",
     "@types/styled-components": "^5.1.11"
   }
-=======
-    "@types/leaflet": "^1.7.0"
-  },
-  "homepage": "./"
->>>>>>> 1f4ee46df1b8a49249a750a8443f9517987c9ce0
 }
+
