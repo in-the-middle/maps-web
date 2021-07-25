@@ -3,7 +3,6 @@ import L from 'leaflet'
 import './Map.css'
 
 interface MyInfoProps {
-  onClick: Function
   visibility: any
   centerTime: Array<Number>
 }
@@ -29,12 +28,6 @@ function MyInfo(Props: MyInfoProps) {
           })}
         </ul>
       </div>
-      <button
-        className="buttonMain"
-        onClick={() => Props.onClick(Props.visibility)}
-      >
-        Build
-      </button>
     </div>
   )
 }

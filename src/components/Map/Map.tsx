@@ -24,6 +24,8 @@ import SearchInput from 'components/SearchInput/searchInput'
 import VehicleButton from 'components/VehicleButton/vehicleButton'
 import AvoidSwitch from 'components/avoidSwitch/avoidSwitch'
 
+import MyInfo from 'components/Map/Interface'
+
 import styled from 'styled-components'
 
 function decode(str: any, precision?: number) {
@@ -105,7 +107,7 @@ function LocationMarker() {
     map.locate().on('locationfound', function (e) {
       map.flyTo(e.latlng, map.getZoom())
       setBbox(e.bounds.toBBoxString().split(',') as any)
-      markers.push([e.latlng.lat, e.latlng.lng])
+      //markers.push([e.latlng.lat, e.latlng.lng])
       setPosition(e.latlng)
       console.log(e.latlng)
       console.log(position)
@@ -190,6 +192,14 @@ class Map extends React.Component<MyProps, any> {
   }
 
   async routeD(handleVisibility: any) {
+    if (!this.state.correctMarkers) {
+      let connector = markers
+      markers = []
+      for (let i = 0; i < connector.length; i += 2) {
+        markers.push(connector[i])
+      }
+      this.setState({ correctMarkers: true })
+    }
     console.log(markers)
     let usersObject = [] as any
     for (let i = 0; i < markers.length; i++) {
@@ -298,6 +308,7 @@ class Map extends React.Component<MyProps, any> {
                 onPress={() => this.handleModeTransit()}
               />
             </VehicleButtonContainer>
+
             <ControlButtonContainer>
               <BuildButton onClick={() => this.routeD(this.handleVisibility)}>
                 Build
@@ -314,6 +325,7 @@ class Map extends React.Component<MyProps, any> {
             </ControlButtonContainer>
           </ButtonContainer>
         </Container>
+        <MyInfo visibility={this.handleVisibility} centerTime={centerTime} />
         <MapContainer
           bounds={bounds}
           scrollWheelZoom={true}
