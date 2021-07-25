@@ -198,14 +198,14 @@ class Map extends React.Component<MyProps, any> {
   }
 
   async routeD(handleVisibility: any) {
-    if (!this.state.correctMarkers) {
-      let connector = markers
-      markers = []
-      for (let i = 0; i < connector.length; i += 2) {
-        markers.push(connector[i])
-      }
-      this.setState({ correctMarkers: true })
-    }
+    // if (!this.state.correctMarkers) {
+    //   let connector = markers
+    //   markers = []
+    //   for (let i = 0; i < connector.length; i += 2) {
+    //     markers.push(connector[i])
+    //   }
+    //   this.setState({ correctMarkers: true })
+    // }
     console.log(markers)
     let usersObject = [] as any
     for (let i = 0; i < markers.length; i++) {
