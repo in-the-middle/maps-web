@@ -28,6 +28,12 @@ import MyInfo from 'components/Map/Interface'
 
 import styled from 'styled-components'
 
+declare global {
+  interface Window {
+    _env_: any
+  }
+}
+
 function decode(str: any, precision?: number) {
   var index = 0,
     lat = 0,
@@ -107,7 +113,11 @@ function LocationMarker() {
     map.locate().on('locationfound', function (e) {
       map.flyTo(e.latlng, map.getZoom())
       setBbox(e.bounds.toBBoxString().split(',') as any)
+<<<<<<< HEAD
       //markers.push([e.latlng.lat, e.latlng.lng])
+=======
+//       markers.push([e.latlng.lat, e.latlng.lng])
+>>>>>>> bb55593a300899fcfc0706d4d22a2626e3bb0362
       setPosition(e.latlng)
       console.log(e.latlng)
       console.log(position)
