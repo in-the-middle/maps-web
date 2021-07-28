@@ -116,12 +116,8 @@ function LocationMarker(newMarker: any) {
     map.locate().on('locationfound', function (e) {
       map.flyTo(e.latlng, map.getZoom())
       setBbox(e.bounds.toBBoxString().split(',') as any)
-<<<<<<< HEAD
       userLocation = [e.latlng.lat, e.latlng.lng]
       userLocationFlag = true
-=======
-      //markers.push([e.latlng.lat, e.latlng.lng])
->>>>>>> b3c75ba18d0ad69a2749adf0754b9c63def5ebba
       setPosition(e.latlng)
       console.log(e.latlng)
       console.log(position)
@@ -226,7 +222,6 @@ class Map extends React.Component<MyProps, any> {
     }))
   }
 
-<<<<<<< HEAD
   async routeD() {
     if (this.state.markers.length > 1) {
       this.setState({ loading: true })
@@ -248,29 +243,6 @@ class Map extends React.Component<MyProps, any> {
           includeFerries: this.state.includeFerries,
         }
         usersObject.push(userInfo)
-=======
-  async routeD(handleVisibility: any) {
-    // if (!this.state.correctMarkers) {
-    //   let connector = markers
-    //   markers = []
-    //   for (let i = 0; i < connector.length; i += 2) {
-    //     markers.push(connector[i])
-    //   }
-    //   this.setState({ correctMarkers: true })
-    // }
-    console.log(markers)
-    let usersObject = [] as any
-    for (let i = 0; i < markers.length; i++) {
-      let userInfo = {
-        location: {
-          lat: markers[i][0],
-          lon: markers[i][1],
-        },
-        mode: this.state.mode,
-        includeTolls: this.state.includeTolls,
-        includeHighways: this.state.includeHighways,
-        includeFerries: this.state.includeFerries,
->>>>>>> b3c75ba18d0ad69a2749adf0754b9c63def5ebba
       }
       usersInfo = { users: usersObject }
       let CenterPoint = await apiService.getCenter({
