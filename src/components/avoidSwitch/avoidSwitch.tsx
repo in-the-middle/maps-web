@@ -15,7 +15,7 @@ export default function AvoidSwitch({
   enabled,
   onPress,
 }: SearchInputProps) {
-  const [isEnabled, setIsEnabled] = useState(enabled ? true : false)
+  const [isEnabled, setIsEnabled] = useState(enabled ? false : true)
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsEnabled(!isEnabled)

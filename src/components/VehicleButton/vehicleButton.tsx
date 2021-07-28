@@ -9,11 +9,20 @@ import Walking from 'assets/icons/Interface/walking.svg'
 type SearchInputProps = {
   onPress: Function
   icon: string
+  active: boolean
 }
 
-export default function vehicleButton({ onPress, icon }: SearchInputProps) {
+type ContainerProps = {
+  active: boolean
+}
+
+export default function vehicleButton({
+  onPress,
+  icon,
+  active,
+}: SearchInputProps) {
   return (
-    <Container onClick={() => onPress()}>
+    <Container active={active} onClick={() => onPress()}>
       <>
         {icon === 'car' ? <img src={Car} alt={''}></img> : null}
         {icon === 'bike' ? <img src={Bike} alt={''}></img> : null}
@@ -24,7 +33,7 @@ export default function vehicleButton({ onPress, icon }: SearchInputProps) {
   )
 }
 
-const Container = styled.button`
+const Container = styled.button<ContainerProps>`
   height: 50px;
   display: flex;
   align-self: center;
@@ -35,8 +44,10 @@ const Container = styled.button`
   align-items: center;
   flex: 1;
   border-radius: 12px;
-  background: rgba(245, 255, 245, 0.9);
+  background: ${(props) =>
+    props.active ? 'rgba(200, 245, 200, 0.9)' : 'rgba(245, 255, 245, 0.9)'};
   border: 0px;
+  border: ${(props) => (props.active ? '2px solid green' : '0px')};
 
   :hover {
     background: rgba(200, 245, 200, 0.9);

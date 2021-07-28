@@ -9,10 +9,13 @@ import {
   ZoomControl,
   useMap,
 } from 'react-leaflet'
-import L, { LatLngExpression } from 'leaflet'
+import { LatLngExpression, marker } from 'leaflet'
 import 'components/Map/Map.css'
 import { MyMarkerIcon, FriendsMarkerIcon } from 'assets/icons/Map/MyMarker'
 import { LatLngBoundsExpression } from 'leaflet'
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
+import Loader from 'react-loader-spinner'
+
 import { DefaultApi } from '../../mapsApi/api'
 import {
   CenterInputDTO,
@@ -23,6 +26,9 @@ import {
 import SearchInput from 'components/SearchInput/searchInput'
 import VehicleButton from 'components/VehicleButton/vehicleButton'
 import AvoidSwitch from 'components/avoidSwitch/avoidSwitch'
+
+import LocationOn from 'assets/icons/Interface/locationOn.svg'
+import LocationOff from 'assets/icons/Interface/locationOff.svg'
 
 import MyInfo from 'components/Map/Interface'
 
@@ -79,15 +85,12 @@ function decode(str: any, precision?: number) {
 }
 
 let coords = [] as any
-let bounds: LatLngBoundsExpression = [
-  [40.49751, -74.263481],
-  [40.93053, -73.546144],
-]
 
-let markers = [] as any
 let usersInfo = { users: [] } as CenterInputDTO
 let centerRoutes = [[]]
-let centerTime = [] as any
+let userLocation = [] as any
+let userLocationFlag = false
+
 let centerLat = 0,
   centerLon = 0
 
@@ -103,7 +106,7 @@ interface RouteProps {
   centerLon: number
 }
 
-function LocationMarker() {
+function LocationMarker(newMarker: any) {
   const [position, setPosition] = useState([0, 0] as LatLngExpression)
   const [bbox, setBbox] = useState([])
 
@@ -113,16 +116,13 @@ function LocationMarker() {
     map.locate().on('locationfound', function (e) {
       map.flyTo(e.latlng, map.getZoom())
       setBbox(e.bounds.toBBoxString().split(',') as any)
-<<<<<<< HEAD
-      //markers.push([e.latlng.lat, e.latlng.lng])
-=======
-//       markers.push([e.latlng.lat, e.latlng.lng])
->>>>>>> bb55593a300899fcfc0706d4d22a2626e3bb0362
+      userLocation = [e.latlng.lat, e.latlng.lng]
+      userLocationFlag = true
       setPosition(e.latlng)
       console.log(e.latlng)
       console.log(position)
     })
-  }, [map])
+  }, [])
 
   return position === null ? null : (
     <Marker position={position} icon={MyMarkerIcon}></Marker>
@@ -133,25 +133,46 @@ class Map extends React.Component<MyProps, any> {
   constructor(props: any) {
     super(props)
     this.state = {
-      visible: false,
+      markers: [],
+      centerTime: [],
+      builded: false,
       settingsMenuOpened: false,
       mode: 'DRIVING',
       modeDTO: TravelModeDTO.DRIVING,
-      includeTolls: false,
-      includeHighways: false,
-      includeFerries: false,
-      correctMarkers: false,
+      includeTolls: true,
+      includeHighways: true,
+      includeFerries: true,
+      loading: false,
+      location: false,
+      bounds: [
+        [40.49751, -74.263481],
+        [40.93053, -73.546144],
+      ] as LatLngBoundsExpression,
     }
-    this.handleVisibility = this.handleVisibility.bind(this)
+    this.handleBuild = this.handleBuild.bind(this)
     this.handleModeDriving = this.handleModeDriving.bind(this)
     this.handleModeBicycling = this.handleModeBicycling.bind(this)
     this.handleModeWalking = this.handleModeWalking.bind(this)
     this.handleModeTransit = this.handleModeTransit.bind(this)
+    this.newMarker = this.newMarker.bind(this)
   }
 
-  handleVisibility() {
+  newMarker() {
+    console.log('test')
+    const markers = this.state
+    markers.push([40.695841, -73.913678])
+    this.setState({ markers })
+  }
+
+  addMarker = (e: any) => {
+    const { markers } = this.state
+    markers.push([e.latlng.lat, e.latlng.lng])
+    this.setState({ markers })
+  }
+
+  handleBuild() {
     this.setState(() => ({
-      visible: true,
+      builded: true,
     }))
   }
 
@@ -201,64 +222,75 @@ class Map extends React.Component<MyProps, any> {
     }))
   }
 
-  async routeD(handleVisibility: any) {
-    if (!this.state.correctMarkers) {
-      let connector = markers
-      markers = []
-      for (let i = 0; i < connector.length; i += 2) {
-        markers.push(connector[i])
+  async routeD() {
+    if (this.state.markers.length > 1) {
+      this.setState({ loading: true })
+      if (userLocationFlag) {
+        const { markers } = this.state
+        markers.push(userLocation)
+        this.setState({ markers })
       }
-      this.setState({ correctMarkers: true })
-    }
-    console.log(markers)
-    let usersObject = [] as any
-    for (let i = 0; i < markers.length; i++) {
-      let userInfo = {
-        location: {
-          lat: markers[i][0],
-          lon: markers[i][1],
-        },
-        mode: this.state.mode,
-        includeTolls: this.state.includeTolls,
-        includeHighways: this.state.includeHighways,
-        includeFerries: this.state.includeFerries,
+      let usersObject = [] as any
+      for (let i = 0; i < this.state.markers.length; i++) {
+        let userInfo = {
+          location: {
+            lat: this.state.markers[i][0],
+            lon: this.state.markers[i][1],
+          },
+          mode: this.state.mode,
+          includeTolls: this.state.includeTolls,
+          includeHighways: this.state.includeHighways,
+          includeFerries: this.state.includeFerries,
+        }
+        usersObject.push(userInfo)
       }
-      usersObject.push(userInfo)
-    }
-    usersInfo = { users: usersObject }
-    let CenterPoint = await apiService.getCenter({ centerInputDTO: usersInfo })
-    centerLat = CenterPoint.location?.lat!
-    centerLon = CenterPoint.location?.lon!
-    centerRoutes = []
-    for (let i = 0; i < markers.length; i++) {
-      let APoint = { lat: markers[i][0], lon: markers[i][1] }
-      let BPoint = {
-        lat: CenterPoint.location?.lat,
-        lon: CenterPoint.location?.lon,
+      usersInfo = { users: usersObject }
+      let CenterPoint = await apiService.getCenter({
+        centerInputDTO: usersInfo,
+      })
+      centerLat = CenterPoint.location?.lat!
+      centerLon = CenterPoint.location?.lon!
+      centerRoutes = []
+      for (let i = 0; i < this.state.markers.length; i++) {
+        let APoint = {
+          lat: this.state.markers[i][0],
+          lon: this.state.markers[i][1],
+        }
+        let BPoint = {
+          lat: CenterPoint.location?.lat,
+          lon: CenterPoint.location?.lon,
+        }
+        let route = {
+          mode: this.state.modeDTO,
+          origin: APoint,
+          destination: BPoint,
+          includeTolls: this.state.includeTolls,
+          includeHighways: this.state.includeHighways,
+          includeFerries: this.state.includeFerries,
+        } as RouteInputDTO
+        console.log(route)
+        let routeResult = await apiService.getRoute({ routeInputDTO: route })
+        let { centerTime } = this.state
+        centerTime.push(routeResult.summary?.time)
+        this.setState({ centerTime })
+        coords = decode(routeResult.shape)
+        centerRoutes.push(coords)
       }
-      let route = {
-        mode: this.state.modeDTO,
-        origin: APoint,
-        destination: BPoint,
-        includeTolls: this.state.includeTolls,
-        includeHighways: this.state.includeHighways,
-        includeFerries: this.state.includeFerries,
-      } as RouteInputDTO
-      console.log(route)
-      let routeResult = await apiService.getRoute({ routeInputDTO: route })
-      centerTime.push(routeResult.summary?.time)
-      coords = decode(routeResult.shape)
-      centerRoutes.push(coords)
+      this.setState({ builded: true })
+      this.setState({ loading: false })
     }
-    handleVisibility()
   }
 
-  Routes(Props: RouteProps) {
+  clearRoutes() {
+    this.setState({ markers: [], builded: false, centerTime: [] })
+  }
+
+  Routes(_Props: RouteProps) {
     return (
       <div>
         <Marker icon={FriendsMarkerIcon} position={[centerLat, centerLon]} />
         <>
-          {centerRoutes.map((item, index) => {
+          {centerRoutes.map((_item, index) => {
             return (
               <Polyline
                 positions={centerRoutes[index]}
@@ -273,6 +305,9 @@ class Map extends React.Component<MyProps, any> {
   }
 
   render() {
+    const locationMarkerProps = {
+      newMarker: this.newMarker,
+    }
     return (
       <div className="leaflet-container">
         <Container>
@@ -304,25 +339,39 @@ class Map extends React.Component<MyProps, any> {
               <VehicleButton
                 icon={'car'}
                 onPress={() => this.handleModeDriving()}
+                active={this.state.mode === 'DRIVING' ? true : false}
               />
               <VehicleButton
                 icon={'bike'}
                 onPress={() => this.handleModeBicycling()}
+                active={this.state.mode === 'BICYCLING' ? true : false}
               />
               <VehicleButton
                 icon={'walking'}
                 onPress={() => this.handleModeWalking()}
+                active={this.state.mode === 'WALKING' ? true : false}
               />
               <VehicleButton
                 icon={'public'}
                 onPress={() => this.handleModeTransit()}
+                active={this.state.mode === 'TRANSIT' ? true : false}
               />
             </VehicleButtonContainer>
 
             <ControlButtonContainer>
-              <BuildButton onClick={() => this.routeD(this.handleVisibility)}>
-                Build
-              </BuildButton>
+              {!this.state.builded ? (
+                <BuildButton
+                  onClick={() => {
+                    if (!this.state.builded) this.routeD()
+                  }}
+                >
+                  Build
+                </BuildButton>
+              ) : (
+                <ClearButton onClick={() => this.clearRoutes()}>
+                  Clear
+                </ClearButton>
+              )}
               <SettingsButton
                 onClick={() =>
                   this.setState({
@@ -332,14 +381,46 @@ class Map extends React.Component<MyProps, any> {
               >
                 Settings
               </SettingsButton>
+              <LocationButton
+                onClick={() => {
+                  if (this.state.location) userLocationFlag = false
+                  this.setState({ location: !this.state.location })
+                }}
+              >
+                <img
+                  width={25}
+                  src={this.state.location ? LocationOn : LocationOff}
+                  alt={''}
+                ></img>
+              </LocationButton>
             </ControlButtonContainer>
           </ButtonContainer>
         </Container>
-        <MyInfo visibility={this.handleVisibility} centerTime={centerTime} />
+        <MyInfo
+          visibility={this.handleBuild}
+          centerTime={this.state.centerTime}
+        />
+        {this.state.loading ? (
+          <div>
+            <LoadingContainer />
+            <LoaderWrapper>
+              <Loader
+                type="RevolvingDot"
+                color="#01B0E8"
+                height={100}
+                width={100}
+              />
+            </LoaderWrapper>
+          </div>
+        ) : null}
         <MapContainer
-          bounds={bounds}
+          bounds={this.state.bounds}
+          center={[40.695841, -73.913678]}
           scrollWheelZoom={true}
           zoomControl={false}
+          whenCreated={(map) => {
+            map.on('click', this.addMarker)
+          }}
         >
           <LayersControl position="topright">
             <LayersControl.BaseLayer checked name="Light Theme">
@@ -358,9 +439,18 @@ class Map extends React.Component<MyProps, any> {
             </LayersControl.BaseLayer>
           </LayersControl>
 
-          <LocationMarker></LocationMarker>
+          {this.state.markers.map((_position: any, idx: any) => (
+            <Marker
+              key={`marker-${idx}`}
+              icon={MyMarkerIcon}
+              position={[
+                this.state.markers[idx][0],
+                this.state.markers[idx][1],
+              ]}
+            ></Marker>
+          ))}
 
-          {this.state.visible ? (
+          {this.state.builded ? (
             <this.Routes
               centerRoutes={centerRoutes}
               centerLat={centerLat}
@@ -368,16 +458,10 @@ class Map extends React.Component<MyProps, any> {
             />
           ) : null}
 
-          <MapConsumer>
-            {(map: L.Map | L.LayerGroup<any>) => {
-              map.on('click', function (e: { latlng: { lat: any; lng: any } }) {
-                const { lat, lng } = e.latlng
-                markers.push([lat, lng])
-                L.marker([lat, lng], { icon: MyMarkerIcon }).addTo(map)
-              })
-              return null
-            }}
-          </MapConsumer>
+          {this.state.location ? (
+            <LocationMarker {...(locationMarkerProps as any)} />
+          ) : null}
+
           <ZoomControl position="topright" />
         </MapContainer>
       </div>
@@ -448,6 +532,52 @@ const SettingsButton = styled.button`
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 `
 
+const ClearButton = styled.button`
+  height: 50px;
+  display: flex;
+  align-self: center;
+  flex-direction: row;
+  margin-left: 7.5px;
+  margin-right: 7.5px;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  border-radius: 12px;
+  background: #eb5160;
+  border: 0px;
+  font-weight: 500;
+  font-size: 20px;
+  color: white;
+
+  :hover {
+    background: #a83a45;
+    cursor: pointer;
+  }
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+`
+
+const LocationButton = styled.button`
+  height: 50px;
+  width: 50px;
+  display: flex;
+  align-self: center;
+  flex-direction: row;
+  margin-left: 7.5px;
+  margin-right: 7.5px;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 12px;
+  background: rgba(245, 255, 245, 0.9);
+  border: 0px;
+
+  :hover {
+    background: rgba(200, 245, 200, 0.9);
+    cursor: pointer;
+  }
+`
+
 const BuildButton = styled.button`
   height: 50px;
   display: flex;
@@ -483,4 +613,27 @@ const AvoidContainer = styled.div`
   border-radius: 12px;
   background: rgba(245, 255, 245, 0.9);
   margin-bottom: 15px;
+`
+
+const LoadingContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: white;
+  opacity: 0.5;
+  z-index: 1000;
+`
+
+const LoaderWrapper = styled.div`
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1001;
 `
