@@ -15,6 +15,7 @@ import { MyMarkerIcon, FriendsMarkerIcon } from 'assets/icons/Map/MyMarker'
 import { LatLngBoundsExpression } from 'leaflet'
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
 import Loader from 'react-loader-spinner'
+import MediaQuery from 'react-responsive'
 
 import { DefaultApi } from '../../mapsApi/api'
 import {
@@ -94,7 +95,7 @@ let userLocationFlag = false
 let centerLat = 0,
   centerLon = 0
 
-const apiService = new DefaultApi(window._env_.REACT_APP_MAPS_SERVICE_URL)
+const apiService = new DefaultApi('http://localhost:8080')
 
 const routeOptions = { color: '#01B0E8', weight: 8 }
 
@@ -223,7 +224,10 @@ class Map extends React.Component<MyProps, any> {
   }
 
   async routeD() {
-    if (this.state.markers.length > 1) {
+    if (
+      (this.state.markers.length > 1 && !userLocationFlag) ||
+      (this.state.markers.length > 0 && userLocationFlag)
+    ) {
       this.setState({ loading: true })
       if (userLocationFlag) {
         const { markers } = this.state
@@ -310,96 +314,187 @@ class Map extends React.Component<MyProps, any> {
     }
     return (
       <div className="leaflet-container">
-        <Container>
-          <InputContainer>
-            <SearchInput title={'Enter the point'} icon={'first'} />
-            <SearchInput title={'Enter the point'} icon={'second'} />
-            {this.state.settingsMenuOpened ? (
-              <AvoidContainer>
-                <AvoidSwitch
-                  title={'avoid tolls'}
-                  enabled={this.state.includeTolls}
-                  onPress={() => this.handleTolls()}
+        <MediaQuery minWidth={850}>
+          <Container>
+            <InputContainer>
+              <SearchInput title={'Enter the point'} icon={'first'} />
+              <SearchInput title={'Enter the point'} icon={'second'} />
+              {this.state.settingsMenuOpened ? (
+                <AvoidContainer>
+                  <AvoidSwitch
+                    title={'avoid tolls'}
+                    enabled={this.state.includeTolls}
+                    onPress={() => this.handleTolls()}
+                  />
+                  <AvoidSwitch
+                    title={'avoid highways'}
+                    enabled={this.state.includeHighways}
+                    onPress={() => this.handleHighways()}
+                  />
+                  <AvoidSwitch
+                    title={'avoid ferries'}
+                    enabled={this.state.includeFerries}
+                    onPress={() => this.handleFerries()}
+                  />
+                </AvoidContainer>
+              ) : null}
+            </InputContainer>
+            <ButtonContainer>
+              <VehicleButtonContainer>
+                <VehicleButton
+                  icon={'car'}
+                  onPress={() => this.handleModeDriving()}
+                  active={this.state.mode === 'DRIVING' ? true : false}
                 />
-                <AvoidSwitch
-                  title={'avoid highways'}
-                  enabled={this.state.includeHighways}
-                  onPress={() => this.handleHighways()}
+                <VehicleButton
+                  icon={'bike'}
+                  onPress={() => this.handleModeBicycling()}
+                  active={this.state.mode === 'BICYCLING' ? true : false}
                 />
-                <AvoidSwitch
-                  title={'avoid ferries'}
-                  enabled={this.state.includeFerries}
-                  onPress={() => this.handleFerries()}
+                <VehicleButton
+                  icon={'walking'}
+                  onPress={() => this.handleModeWalking()}
+                  active={this.state.mode === 'WALKING' ? true : false}
                 />
-              </AvoidContainer>
-            ) : null}
-          </InputContainer>
-          <ButtonContainer>
-            <VehicleButtonContainer>
-              <VehicleButton
-                icon={'car'}
-                onPress={() => this.handleModeDriving()}
-                active={this.state.mode === 'DRIVING' ? true : false}
-              />
-              <VehicleButton
-                icon={'bike'}
-                onPress={() => this.handleModeBicycling()}
-                active={this.state.mode === 'BICYCLING' ? true : false}
-              />
-              <VehicleButton
-                icon={'walking'}
-                onPress={() => this.handleModeWalking()}
-                active={this.state.mode === 'WALKING' ? true : false}
-              />
-              <VehicleButton
-                icon={'public'}
-                onPress={() => this.handleModeTransit()}
-                active={this.state.mode === 'TRANSIT' ? true : false}
-              />
-            </VehicleButtonContainer>
+                <VehicleButton
+                  icon={'public'}
+                  onPress={() => this.handleModeTransit()}
+                  active={this.state.mode === 'TRANSIT' ? true : false}
+                />
+              </VehicleButtonContainer>
 
-            <ControlButtonContainer>
-              {!this.state.builded ? (
-                <BuildButton
+              <ControlButtonContainer>
+                {!this.state.builded ? (
+                  <BuildButton
+                    onClick={() => {
+                      if (!this.state.builded) this.routeD()
+                    }}
+                  >
+                    Build
+                  </BuildButton>
+                ) : (
+                  <ClearButton onClick={() => this.clearRoutes()}>
+                    Clear
+                  </ClearButton>
+                )}
+                <SettingsButton
+                  onClick={() =>
+                    this.setState({
+                      settingsMenuOpened: !this.state.settingsMenuOpened,
+                    })
+                  }
+                >
+                  Settings
+                </SettingsButton>
+                <LocationButton
                   onClick={() => {
-                    if (!this.state.builded) this.routeD()
+                    if (this.state.location) userLocationFlag = false
+                    this.setState({ location: !this.state.location })
                   }}
                 >
-                  Build
-                </BuildButton>
-              ) : (
-                <ClearButton onClick={() => this.clearRoutes()}>
-                  Clear
-                </ClearButton>
-              )}
-              <SettingsButton
-                onClick={() =>
-                  this.setState({
-                    settingsMenuOpened: !this.state.settingsMenuOpened,
-                  })
-                }
-              >
-                Settings
-              </SettingsButton>
-              <LocationButton
-                onClick={() => {
-                  if (this.state.location) userLocationFlag = false
-                  this.setState({ location: !this.state.location })
-                }}
-              >
-                <img
-                  width={25}
-                  src={this.state.location ? LocationOn : LocationOff}
-                  alt={''}
-                ></img>
-              </LocationButton>
-            </ControlButtonContainer>
-          </ButtonContainer>
-        </Container>
-        <MyInfo
-          visibility={this.handleBuild}
-          centerTime={this.state.centerTime}
-        />
+                  <img
+                    width={25}
+                    src={this.state.location ? LocationOn : LocationOff}
+                    alt={''}
+                  ></img>
+                </LocationButton>
+              </ControlButtonContainer>
+            </ButtonContainer>
+          </Container>
+        </MediaQuery>
+        <MediaQuery maxWidth={849}>
+          <MobileContainer>
+            <Sidebar />
+            <MainContainer>
+              <InputContainer>
+                <SearchInput title={'Enter the point'} icon={'first'} />
+                <SearchInput title={'Enter the point'} icon={'second'} />
+              </InputContainer>
+              <ButtonContainer>
+                <MobileVehicleButtonContainer>
+                  <VehicleButton
+                    icon={'car'}
+                    onPress={() => this.handleModeDriving()}
+                    active={this.state.mode === 'DRIVING' ? true : false}
+                  />
+                  <VehicleButton
+                    icon={'bike'}
+                    onPress={() => this.handleModeBicycling()}
+                    active={this.state.mode === 'BICYCLING' ? true : false}
+                  />
+                  <VehicleButton
+                    icon={'walking'}
+                    onPress={() => this.handleModeWalking()}
+                    active={this.state.mode === 'WALKING' ? true : false}
+                  />
+                  <VehicleButton
+                    icon={'public'}
+                    onPress={() => this.handleModeTransit()}
+                    active={this.state.mode === 'TRANSIT' ? true : false}
+                  />
+                </MobileVehicleButtonContainer>
+
+                <MobileControlButtonContainer>
+                  {!this.state.builded ? (
+                    <BuildButton
+                      onClick={() => {
+                        if (!this.state.builded) this.routeD()
+                      }}
+                    >
+                      Build
+                    </BuildButton>
+                  ) : (
+                    <ClearButton onClick={() => this.clearRoutes()}>
+                      Clear
+                    </ClearButton>
+                  )}
+                  <SettingsButton
+                    onClick={() =>
+                      this.setState({
+                        settingsMenuOpened: !this.state.settingsMenuOpened,
+                      })
+                    }
+                  >
+                    Settings
+                  </SettingsButton>
+                  <LocationButton
+                    onClick={() => {
+                      if (this.state.location) userLocationFlag = false
+                      this.setState({ location: !this.state.location })
+                    }}
+                  >
+                    <img
+                      width={25}
+                      src={this.state.location ? LocationOn : LocationOff}
+                      alt={''}
+                    ></img>
+                  </LocationButton>
+                </MobileControlButtonContainer>
+              </ButtonContainer>
+              {this.state.settingsMenuOpened ? (
+                <MobileAvoidContainer>
+                  <AvoidSwitch
+                    title={'avoid tolls'}
+                    enabled={this.state.includeTolls}
+                    onPress={() => this.handleTolls()}
+                  />
+                  <AvoidSwitch
+                    title={'avoid highways'}
+                    enabled={this.state.includeHighways}
+                    onPress={() => this.handleHighways()}
+                  />
+                  <AvoidSwitch
+                    title={'avoid ferries'}
+                    enabled={this.state.includeFerries}
+                    onPress={() => this.handleFerries()}
+                  />
+                </MobileAvoidContainer>
+              ) : null}
+            </MainContainer>
+            <Sidebar />
+          </MobileContainer>
+        </MediaQuery>
+
         {this.state.loading ? (
           <div>
             <LoadingContainer />
@@ -422,18 +517,17 @@ class Map extends React.Component<MyProps, any> {
             map.on('click', this.addMarker)
           }}
         >
-          <LayersControl position="topright">
+          <LayersControl position="bottomright">
             <LayersControl.BaseLayer checked name="Light Theme">
               <TileLayer
-                attribution='<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.jawg.io/jawg-sunny/{z}/{x}/{y}{r}.png?access-token={accessToken}"
-                accessToken="0TrF3SsEIIn6VzxFTCQy7dMAUkTDEEp6Lwj5wswHvubv9E0iEg5NEQ9Njgu29AM2"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://api.mapbox.com/styles/v1/kamenev/cksc5k2m71yw218ntxj7sadj2/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1Ijoia2FtZW5ldiIsImEiOiJja3NjNDZhaGEwY3puMnJwazVmZHh1ejJ6In0.3JVkm1gYv6KWCUQhfEViuQ"
               />
             </LayersControl.BaseLayer>
             <LayersControl.BaseLayer name="Dark Theme">
               <TileLayer
-                attribution='<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.jawg.io/jawg-dark/{z}/{x}/{y}{r}.png?access-token={accessToken}"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.jawg.io/jawg-sunny/{z}/{x}/{y}{r}.png?access-token={accessToken}"
                 accessToken="0TrF3SsEIIn6VzxFTCQy7dMAUkTDEEp6Lwj5wswHvubv9E0iEg5NEQ9Njgu29AM2"
               />
             </LayersControl.BaseLayer>
@@ -462,7 +556,7 @@ class Map extends React.Component<MyProps, any> {
             <LocationMarker {...(locationMarkerProps as any)} />
           ) : null}
 
-          <ZoomControl position="topright" />
+          <ZoomControl position="bottomright" />
         </MapContainer>
       </div>
     )
@@ -478,6 +572,23 @@ const Container = styled.div`
   position: absolute;
   top: 30px;
   left: 30px;
+`
+
+const MobileContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  z-index: 1000;
+  position: absolute;
+  top: 20px;
+`
+
+const Sidebar = styled.div`
+  flex: 0.05;
+`
+
+const MainContainer = styled.div`
+  flex: 0.9;
 `
 
 const InputContainer = styled.div`
@@ -498,10 +609,28 @@ const VehicleButtonContainer = styled.div`
   justify-content: space-between;
 `
 
+const MobileVehicleButtonContainer = styled.div`
+  display: flex;
+  height: 50px;
+  width: 100%;
+  flex-direction: row;
+  margin-bottom: 15px;
+  justify-content: space-between;
+`
+
 const ControlButtonContainer = styled.div`
   display: flex;
   height: 50px;
   width: 375px;
+  flex-direction: row;
+  margin-bottom: 15px;
+  justify-content: space-between;
+`
+
+const MobileControlButtonContainer = styled.div`
+  display: flex;
+  height: 50px;
+  width: 100%;
   flex-direction: row;
   margin-bottom: 15px;
   justify-content: space-between;
@@ -609,6 +738,18 @@ const AvoidContainer = styled.div`
   justify-content: space-between;
   height: 150px;
   width: 375px;
+  align-self: center;
+  border-radius: 12px;
+  background: rgba(245, 255, 245, 0.9);
+  margin-bottom: 15px;
+`
+
+const MobileAvoidContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 150px;
+  width: 100%;
   align-self: center;
   border-radius: 12px;
   background: rgba(245, 255, 245, 0.9);

@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { useMediaQuery } from 'react-responsive'
 
 import SearchInput1 from 'assets/icons/Interface/searchInput1.svg'
 import SearchInput2 from 'assets/icons/Interface/searchInput2.svg'
@@ -9,9 +10,15 @@ type SearchInputProps = {
   icon: string
 }
 
-export default function searchInput({ title, icon }: SearchInputProps) {
+type ContainerProps = {
+  isBigScreen: boolean
+}
+
+export default function SearchInput({ title, icon }: SearchInputProps) {
+  const isBigScreen = useMediaQuery({ query: '(min-width: 850px)' })
+
   return (
-    <Container>
+    <Container isBigScreen={isBigScreen}>
       <IconContainer>
         {icon === 'first' ? (
           <img width={23} src={SearchInput1} alt={''}></img>
@@ -24,10 +31,10 @@ export default function searchInput({ title, icon }: SearchInputProps) {
   )
 }
 
-const Container = styled.div`
+const Container = styled.div<ContainerProps>`
   display: flex;
   height: 50px;
-  width: 375px;
+  width: ${(props) => (props.isBigScreen ? '375px' : '100%')};
   align-self: center;
   flex-direction: row;
   border-radius: 12px;
