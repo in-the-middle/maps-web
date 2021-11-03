@@ -1,10 +1,11 @@
 import React from 'react'
 import Map from 'components/Map/Map'
 
-function Main() {
+function Main(props: any) {
+  const { user } = props
   return (
     <div>
-      <Map />
+      <Map user={user} />
     </div>
   )
 }

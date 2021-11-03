@@ -3,11 +3,13 @@ import {
   MapContainer,
   TileLayer,
   Marker,
+  Popup,
   LayersControl,
   Polyline,
   MapConsumer,
   ZoomControl,
   useMap,
+  Tooltip,
 } from 'react-leaflet'
 import { LatLngExpression, marker } from 'leaflet'
 import 'components/Map/Map.css'
@@ -27,13 +29,20 @@ import {
 import SearchInput from 'components/SearchInput/searchInput'
 import VehicleButton from 'components/VehicleButton/vehicleButton'
 import AvoidSwitch from 'components/avoidSwitch/avoidSwitch'
+import FriendsPopup from 'components/friendsPopup/friendsPopup'
+import FriendSettings from 'components/FriendSettings/FriendSettings'
 
 import LocationOn from 'assets/icons/Interface/locationOn.svg'
 import LocationOff from 'assets/icons/Interface/locationOff.svg'
 
+import authService from 'components/apiDeclaration/apiDeclaration'
+
 import MyInfo from 'components/Map/Interface'
 
+import { friends } from 'mocks/friends'
+
 import styled from 'styled-components'
+import { LocationDTO } from 'authServiceApi'
 
 declare global {
   interface Window {
@@ -95,11 +104,13 @@ let userLocationFlag = false
 let centerLat = 0,
   centerLon = 0
 
-const apiService = new DefaultApi(window._env_.REACT_APP_MAPS_SERVICE_URL)
+const apiService = new DefaultApi('http://localhost:8080')
 
 const routeOptions = { color: '#01B0E8', weight: 8 }
 
-interface MyProps {}
+interface MapProps {
+  user: any
+}
 
 interface RouteProps {
   centerRoutes: Array<Array<Array<number>>>
@@ -107,7 +118,20 @@ interface RouteProps {
   centerLon: number
 }
 
-function LocationMarker(newMarker: any) {
+var locationShare = [] as any
+function LocationShare(props: any) {
+  const map = useMap()
+  useEffect(() => {
+    map.locate().on('locationfound', function (e) {
+      locationShare = e.latlng
+      console.log(locationShare)
+    })
+  }, [])
+  return <div></div>
+}
+
+function LocationMarker(props: any) {
+  const { username } = props
   const [position, setPosition] = useState([0, 0] as LatLngExpression)
   const [bbox, setBbox] = useState([])
 
@@ -120,17 +144,19 @@ function LocationMarker(newMarker: any) {
       userLocation = [e.latlng.lat, e.latlng.lng]
       userLocationFlag = true
       setPosition(e.latlng)
-      console.log(e.latlng)
-      console.log(position)
     })
   }, [])
 
   return position === null ? null : (
-    <Marker position={position} icon={MyMarkerIcon}></Marker>
+    <Marker position={position} icon={MyMarkerIcon}>
+      <UserTooltop direction={'bottom'} offset={[0, 25]} permanent>
+        {username}
+      </UserTooltop>
+    </Marker>
   )
 }
 
-class Map extends React.Component<MyProps, any> {
+class Map extends React.Component<MapProps, any> {
   constructor(props: any) {
     super(props)
     this.state = {
@@ -149,6 +175,12 @@ class Map extends React.Component<MyProps, any> {
         [40.49751, -74.263481],
         [40.93053, -73.546144],
       ] as LatLngBoundsExpression,
+      setting: 'preferences',
+      friends: [],
+      firstSearchValue: '',
+      displayedFriends: [],
+      addedFriends: [],
+      changesApplied: false,
     }
     this.handleBuild = this.handleBuild.bind(this)
     this.handleModeDriving = this.handleModeDriving.bind(this)
@@ -156,10 +188,84 @@ class Map extends React.Component<MyProps, any> {
     this.handleModeWalking = this.handleModeWalking.bind(this)
     this.handleModeTransit = this.handleModeTransit.bind(this)
     this.newMarker = this.newMarker.bind(this)
+    this.onValueChange = this.onValueChange.bind(this)
+    this.checkDisplayedFriend = this.checkDisplayedFriend.bind(this)
+    this.addFriendMarker = this.addFriendMarker.bind(this)
+    this.changeFriendsList = this.changeFriendsList.bind(this)
+  }
+
+  async componentDidMount() {
+    const response = await authService.getFriendList({
+      queryParams: {
+        id: this.props.user.userId,
+      },
+    })
+
+    console.log(locationShare)
+
+    const request = {
+      id: this.props.user.userId,
+      lat: locationShare.lat,
+      lon: locationShare.lng,
+    } as LocationDTO
+
+    const locResponse = await authService.saveLocation({ locationDTO: request })
+    console.log(locResponse)
+
+    this.setState({ friends: response })
+    console.log(locationShare)
+  }
+
+  addFriendMarker(username: any) {
+    console.log(this.state.markers)
+    const addedFriends = [...this.state.addedFriends]
+    const alreadyAdded = addedFriends.find(
+      (friend: any) => friend.username === username,
+    )
+    if (!!alreadyAdded) {
+      const addedIndex = addedFriends.indexOf(alreadyAdded)
+      addedFriends.splice(addedIndex, 1)
+    } else {
+      const uniqueFriend = this.state.friends.find(
+        (friend: any) => friend.username === username,
+      )
+      addedFriends.push(uniqueFriend)
+    }
+    console.log(addedFriends)
+    this.setState({ addedFriends })
+  }
+
+  checkDisplayedFriend(username: number) {
+    console.log(username)
+    const markers = [...this.state.markers]
+    const displayedFriends = [...this.state.displayedFriends]
+    const alreadyDisplayed = displayedFriends.find(
+      (friend: any) => friend.username === username,
+    )
+
+    if (!!alreadyDisplayed) {
+      const displayedIndex = displayedFriends.indexOf(alreadyDisplayed)
+      const displayedMarker = markers.find(
+        (marker: any) =>
+          marker[0] === alreadyDisplayed.lat &&
+          marker[1] === alreadyDisplayed.lon,
+      )
+      const markerIndex = markers.indexOf(displayedMarker)
+      markers.splice(markerIndex, 1)
+      displayedFriends.splice(displayedIndex, 1)
+    } else {
+      console.log(markers)
+      const uniqueFriend = this.state.friends.find(
+        (friend: any) => friend.username === username,
+      )
+      markers.push([uniqueFriend.lat, uniqueFriend.lon])
+      displayedFriends.push(uniqueFriend)
+    }
+    this.setState({ displayedFriends })
+    this.setState({ markers })
   }
 
   newMarker() {
-    console.log('test')
     const markers = this.state
     markers.push([40.695841, -73.913678])
     this.setState({ markers })
@@ -169,6 +275,18 @@ class Map extends React.Component<MyProps, any> {
     const { markers } = this.state
     markers.push([e.latlng.lat, e.latlng.lng])
     this.setState({ markers })
+  }
+
+  onValueChange = (value: string) => {
+    this.setState(() => ({
+      firstSearchValue: value,
+    }))
+  }
+
+  changeFriendsList = (friends: any) => {
+    this.setState(() => ({
+      friends: friends,
+    }))
   }
 
   handleBuild() {
@@ -223,9 +341,38 @@ class Map extends React.Component<MyProps, any> {
     }))
   }
 
+  FriendMarkers(props: any) {
+    const { displayedFriends } = props
+
+    return displayedFriends ? (
+      <div>
+        {displayedFriends.map((friend: any) => (
+          <Marker position={[friend.lat, friend.lon]} icon={MyMarkerIcon}>
+            <FriendsTooltop direction={'bottom'} offset={[0, 25]} permanent>
+              {'@'}
+              {friend.username}
+            </FriendsTooltop>
+          </Marker>
+        ))}
+      </div>
+    ) : null
+  }
+
   async routeD() {
+    for (let i = 0; i < this.state.addedFriends.length; i++) {
+      console.log(this.state.addedFriends[i])
+      if (this.state.addedFriends[i].lat && this.state.addedFriends[i].lon) {
+        const { markers } = this.state
+        markers.push([
+          this.state.addedFriends[i].lat,
+          this.state.addedFriends[i].lon,
+        ])
+        this.setState({ markers })
+      }
+      console.log(this.state.markers)
+    }
     if (
-      (this.state.markers.length > 1 && !userLocationFlag) ||
+      (this.state.markers.length > 0 && !userLocationFlag) ||
       (this.state.markers.length > 0 && userLocationFlag)
     ) {
       this.setState({ loading: true })
@@ -286,13 +433,22 @@ class Map extends React.Component<MyProps, any> {
   }
 
   clearRoutes() {
-    this.setState({ markers: [], builded: false, centerTime: [] })
+    var markers = [...this.state.markers]
+    markers = []
+    this.state.displayedFriends.map((friend: any) =>
+      markers.push([friend.lat, friend.lon]),
+    )
+    this.setState({ markers, builded: false, centerTime: [] })
   }
 
   Routes(_Props: RouteProps) {
     return (
       <div>
-        <Marker icon={FriendsMarkerIcon} position={[centerLat, centerLon]} />
+        <Marker icon={FriendsMarkerIcon} position={[centerLat, centerLon]}>
+          <CenterPointTooltop direction={'bottom'} offset={[0, 25]} permanent>
+            center point
+          </CenterPointTooltop>
+        </Marker>
         <>
           {centerRoutes.map((_item, index) => {
             return (
@@ -311,31 +467,81 @@ class Map extends React.Component<MyProps, any> {
   render() {
     const locationMarkerProps = {
       newMarker: this.newMarker,
+      user: this.props.user,
     }
     return (
       <div className="leaflet-container">
         <MediaQuery minWidth={850}>
           <Container>
             <InputContainer>
-              <SearchInput title={'Enter the point'} icon={'first'} />
-              <SearchInput title={'Enter the point'} icon={'second'} />
+              <SearchInput
+                value={this.state.firstSearchValue}
+                onValueChange={this.onValueChange}
+                title={'Enter the point'}
+                icon={'first'}
+              />
+              <SearchInput
+                value=""
+                onValueChange={() => {}}
+                title={'Enter the point'}
+                icon={'second'}
+              />
+              {this.state.firstSearchValue ? (
+                <FriendsPopup
+                  user={this.props.user}
+                  friends={this.state.friends}
+                  displayedFriends={this.state.displayedFriends}
+                  checkDisplayedFriend={this.checkDisplayedFriend}
+                  addFriendMarker={this.addFriendMarker}
+                  addedFriends={this.state.addedFriends}
+                />
+              ) : null}
               {this.state.settingsMenuOpened ? (
                 <AvoidContainer>
-                  <AvoidSwitch
-                    title={'avoid tolls'}
-                    enabled={this.state.includeTolls}
-                    onPress={() => this.handleTolls()}
-                  />
-                  <AvoidSwitch
-                    title={'avoid highways'}
-                    enabled={this.state.includeHighways}
-                    onPress={() => this.handleHighways()}
-                  />
-                  <AvoidSwitch
-                    title={'avoid ferries'}
-                    enabled={this.state.includeFerries}
-                    onPress={() => this.handleFerries()}
-                  />
+                  <SwitchSettingContainer>
+                    <SwitchSetting
+                      onClick={() =>
+                        this.setState(() => ({
+                          setting: 'preferences',
+                        }))
+                      }
+                    >
+                      Preferences
+                    </SwitchSetting>
+                    <SwitchSetting
+                      onClick={() =>
+                        this.setState(() => ({
+                          setting: 'friends',
+                        }))
+                      }
+                    >
+                      Friends
+                    </SwitchSetting>
+                  </SwitchSettingContainer>
+                  {this.state.setting === 'preferences' ? (
+                    <div>
+                      <AvoidSwitch
+                        title={'avoid tolls'}
+                        enabled={this.state.includeTolls}
+                        onPress={() => this.handleTolls()}
+                      />
+                      <AvoidSwitch
+                        title={'avoid highways'}
+                        enabled={this.state.includeHighways}
+                        onPress={() => this.handleHighways()}
+                      />
+                      <AvoidSwitch
+                        title={'avoid ferries'}
+                        enabled={this.state.includeFerries}
+                        onPress={() => this.handleFerries()}
+                      />
+                    </div>
+                  ) : (
+                    <FriendSettings
+                      user={this.props.user}
+                      changeFriendsList={this.changeFriendsList}
+                    />
+                  )}
                 </AvoidContainer>
               ) : null}
             </InputContainer>
@@ -402,13 +608,24 @@ class Map extends React.Component<MyProps, any> {
             </ButtonContainer>
           </Container>
         </MediaQuery>
+
         <MediaQuery maxWidth={849}>
           <MobileContainer>
             <Sidebar />
             <MainContainer>
               <InputContainer>
-                <SearchInput title={'Enter the point'} icon={'first'} />
-                <SearchInput title={'Enter the point'} icon={'second'} />
+                <SearchInput
+                  value={this.state.firstSearchValue}
+                  onValueChange={this.onValueChange}
+                  title={'Enter the point'}
+                  icon={'first'}
+                />
+                <SearchInput
+                  value=""
+                  onValueChange={() => {}}
+                  title={'Enter the point'}
+                  icon={'second'}
+                />
               </InputContainer>
               <ButtonContainer>
                 <MobileVehicleButtonContainer>
@@ -553,8 +770,17 @@ class Map extends React.Component<MyProps, any> {
           ) : null}
 
           {this.state.location ? (
-            <LocationMarker {...(locationMarkerProps as any)} />
+            <LocationMarker
+              username={this.props.user.username}
+              {...(locationMarkerProps as any)}
+            />
           ) : null}
+
+          <LocationShare />
+
+          <this.FriendMarkers
+            displayedFriends={this.state.displayedFriends}
+          ></this.FriendMarkers>
 
           <ZoomControl position="bottomright" />
         </MapContainer>
@@ -736,7 +962,6 @@ const AvoidContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 150px;
   width: 375px;
   align-self: center;
   border-radius: 12px;
@@ -777,4 +1002,54 @@ const LoaderWrapper = styled.div`
   width: 100%;
   height: 100vh;
   z-index: 1001;
+`
+
+const SwitchSetting = styled.button`
+  flex: 0.5;
+  border: 0;
+  background-color: rgba(245, 255, 245, 0.9);
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 20px;
+  cursor: pointer;
+  font-weight: 600;
+`
+
+const SwitchSettingContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+`
+
+const FriendsTooltop = styled(Tooltip)`
+  padding-bottom: 5px;
+  font-size: 15px;
+  color: #589441;
+  font-weight: 600;
+  background-color: rgba(245, 255, 245, 1);
+  border: 1px solid rgba(245, 255, 245, 1);
+  border-radius: 10px;
+  opacity: 1;
+`
+
+const UserTooltop = styled(Tooltip)`
+  padding-bottom: 5px;
+  font-size: 15px;
+  color: #01b0e8;
+  font-weight: 600;
+  background-color: rgba(245, 255, 245, 1);
+  border: 1px solid rgba(245, 255, 245, 1);
+  border-radius: 10px;
+  opacity: 1;
+`
+
+const CenterPointTooltop = styled(Tooltip)`
+  padding-bottom: 5px;
+  font-size: 15px;
+  color: #fdbb2d;
+  font-weight: 600;
+  background-color: rgba(245, 255, 245, 1);
+  border: 1px solid rgba(245, 255, 245, 1);
+  border-radius: 10px;
+  opacity: 1;
 `

@@ -8,14 +8,25 @@ import SearchInput2 from 'assets/icons/Interface/searchInput2.svg'
 type SearchInputProps = {
   title: string
   icon: string
+  value: string
+  onValueChange: Function
 }
 
 type ContainerProps = {
   isBigScreen: boolean
 }
 
-export default function SearchInput({ title, icon }: SearchInputProps) {
+export default function SearchInput({
+  title,
+  icon,
+  value,
+  onValueChange,
+}: SearchInputProps) {
   const isBigScreen = useMediaQuery({ query: '(min-width: 850px)' })
+
+  const handleChange = (event: any) => {
+    onValueChange(event.target.value)
+  }
 
   return (
     <Container isBigScreen={isBigScreen}>
@@ -26,7 +37,7 @@ export default function SearchInput({ title, icon }: SearchInputProps) {
           <img width={23} src={SearchInput2} alt={''}></img>
         )}
       </IconContainer>
-      <Input placeholder={title}></Input>
+      <Input placeholder={title} value={value} onChange={handleChange}></Input>
     </Container>
   )
 }
