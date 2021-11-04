@@ -69,7 +69,7 @@ export default function ResetPassword() {
               variant="outlined"
               style={{ marginBottom: 20 }}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: any) => setEmail(e.target.value)}
               onFocus={() => setEmail('')}
             ></CustomInput>
             <CustomButton onClick={() => sendCode(email)}>
@@ -84,7 +84,7 @@ export default function ResetPassword() {
               variant="outlined"
               style={{ marginBottom: 20 }}
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e: any) => setCode(e.target.value)}
             ></CustomInput>
             <OutlinedInput
               id="outlined-adornment-password"
@@ -97,7 +97,7 @@ export default function ResetPassword() {
                 outline: 'none',
               }}
               classes={{ notchedOutline: 'visible' }}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e: any) => setNewPassword(e.target.value)}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton

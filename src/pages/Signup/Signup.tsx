@@ -133,7 +133,7 @@ export default function Signup({
               label="login"
               variant="outlined"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e: any) => setUsername(e.target.value)}
               style={{ marginBottom: 20 }}
             ></CustomInput>
             <CustomInput
@@ -141,7 +141,7 @@ export default function Signup({
               label="first name"
               variant="outlined"
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onChange={(e: any) => setFirstName(e.target.value)}
               style={{ marginBottom: 20 }}
             ></CustomInput>
             <CustomInput
@@ -149,7 +149,7 @@ export default function Signup({
               label="last name"
               variant="outlined"
               value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              onChange={(e: any) => setLastName(e.target.value)}
               style={{ marginBottom: 20 }}
             ></CustomInput>
             <CustomInput
@@ -157,7 +157,7 @@ export default function Signup({
               label="email"
               variant="outlined"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: any) => setEmail(e.target.value)}
               style={{ marginBottom: 20 }}
             ></CustomInput>
             <OutlinedInput
@@ -171,7 +171,7 @@ export default function Signup({
                 outline: 'none',
               }}
               classes={{ notchedOutline: 'visible' }}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: any) => setPassword(e.target.value)}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
@@ -220,7 +220,7 @@ export default function Signup({
               variant="outlined"
               style={{ marginBottom: 20 }}
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e: any) => setCode(e.target.value)}
               onFocus={() => setCode('')}
             ></CustomInput>
 

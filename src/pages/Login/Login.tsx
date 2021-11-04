@@ -26,8 +26,8 @@ export default function Login({
   res,
   usernamee,
 }: any) {
-  const [username, setUsername] = useState('ivan')
-  const [password, setPassword] = useState('GGGggg1')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
   console.log(localStorage.getItem('accessToken'))
@@ -89,7 +89,7 @@ export default function Login({
           label="login"
           variant="outlined"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e: any) => setUsername(e.target.value)}
         ></CustomInput>
         <OutlinedInput
           id="outlined-adornment-password"
@@ -103,7 +103,7 @@ export default function Login({
             outline: 'none',
           }}
           classes={{ notchedOutline: 'visible' }}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e: any) => setPassword(e.target.value)}
           endAdornment={
             <InputAdornment position="end">
               <IconButton
