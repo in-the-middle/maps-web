@@ -375,29 +375,27 @@ class Map extends React.Component<MapProps, any> {
   }
 
   async routeD(token: any) {
-    /*  console.log(token)
-    const registerFetch = fetchIntercept.register({
+    console.log(token);
+    fetchIntercept.register({
       request: function (url, config) {
-        let newConfig = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-        return [url, newConfig]
+        console.log(url, config);
+        config.headers.Authorization = `Bearer ${token}`;
+
+        return [url, config];
       },
       requestError: function (error) {
         // Called when an error occured during another 'request' interceptor call
-        return Promise.reject(error)
+        return Promise.reject(error);
       },
       response: function (response) {
         // Modify the reponse object
-        return response
+        return response;
       },
       responseError: function (error) {
         // Handle an fetch error
-        return Promise.reject(error)
+        return Promise.reject(error);
       },
-    }) */
+    });
 
     console.log(this.props.response);
     for (let i = 0; i < this.state.addedFriends.length; i++) {
@@ -464,11 +462,6 @@ class Map extends React.Component<MapProps, any> {
           includeFerries: this.state.includeFerries,
         } as RouteInputDTO;
 
-        axios.get("https://maps-be-v1-45iud4jnfq-uc.a.run.app/getRoute", {
-          headers: {
-            Authorization: "Bearer " + this.props.response.token,
-          },
-        });
         console.log(route);
         let routeResult = await apiService.getRoute({ routeInputDTO: route });
         let { centerTime } = this.state;
