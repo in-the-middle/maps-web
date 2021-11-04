@@ -104,7 +104,7 @@ let userLocationFlag = false
 let centerLat = 0,
   centerLon = 0
 
-const apiService = new DefaultApi('http://localhost:8080')
+const apiService = new DefaultApi('https://maps-be-v1-45iud4jnfq-uc.a.run.app')
 
 const routeOptions = { color: '#01B0E8', weight: 8 }
 
@@ -486,7 +486,7 @@ class Map extends React.Component<MapProps, any> {
                 title={'Enter the point'}
                 icon={'second'}
               />
-              {this.state.firstSearchValue ? (
+              {this.state.firstSearchValue === '@' ? (
                 <FriendsPopup
                   user={this.props.user}
                   friends={this.state.friends}

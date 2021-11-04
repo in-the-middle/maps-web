@@ -29,9 +29,11 @@ export default function FriendsPopup(props: any) {
   }
 
   const Item = (index: any, key: any) => {
+    console.log(friends[index].friendStatus)
     if (
-      friends[index].locationPermission !== 'ALLOWED' &&
-      friends[index].friendStatus !== 'FRIENDS'
+      friends[index].locationPermission === 'NOT_ALLOWED' &&
+      friends[index].friendStatus === 'INVITED_BY_ME' &&
+      friends[index].friendStatus === 'INVITED_BY_HIM'
     )
       return <div></div>
 
@@ -39,7 +41,11 @@ export default function FriendsPopup(props: any) {
       (friend: any) => friend.username === friends[index].username,
     )
     console.log(selected)
-    if (searched) {
+    if (
+      searched &&
+      friends[index].friendStatus === 'FRIENDS' &&
+      friends[index].locationPermission === 'ALLOWED'
+    ) {
       if (
         friends[index].username.toLowerCase().includes(searched.toLowerCase())
       )
@@ -52,7 +58,10 @@ export default function FriendsPopup(props: any) {
           />
         )
       return <div></div>
-    } else
+    } else if (
+      friends[index].friendStatus === 'FRIENDS' &&
+      friends[index].locationPermission === 'ALLOWED'
+    )
       return (
         <Friend
           username={friends[index].username}
@@ -61,6 +70,7 @@ export default function FriendsPopup(props: any) {
           key={key}
         />
       )
+    return <div></div>
   }
 
   return (

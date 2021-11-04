@@ -3,14 +3,25 @@ import React, { useState } from 'react'
 import authService from 'components/apiDeclaration/apiDeclaration'
 import { useHistory } from 'react-router'
 
+import {
+  IconButton,
+  InputAdornment,
+  TextField,
+  Button,
+} from '@material-ui/core'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
+
 import styled from 'styled-components'
 
 export default function ResetPassword() {
-  const [email, setEmail] = useState('enter your email')
-  const [code, setCode] = useState('enter code')
+  const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
   const [codeSended, setCodeSended] = useState(false)
-  const [newPassword, setNewPassword] = useState('enter new password')
+  const [newPassword, setNewPassword] = useState('')
   const [error, setError] = useState<any>(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   const history = useHistory()
 
@@ -53,6 +64,10 @@ export default function ResetPassword() {
         {!codeSended ? (
           <div>
             <CustomInput
+              id="outlined-basic"
+              label="enter your email"
+              variant="outlined"
+              style={{ marginBottom: 20 }}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onFocus={() => setEmail('')}
@@ -64,15 +79,37 @@ export default function ResetPassword() {
         ) : (
           <div>
             <CustomInput
+              id="outlined-basic"
+              label="code"
+              variant="outlined"
+              style={{ marginBottom: 20 }}
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              onFocus={() => setCode('')}
             ></CustomInput>
-            <CustomInput
+            <OutlinedInput
+              id="outlined-adornment-password"
+              type={showPassword ? 'text' : 'password'}
               value={newPassword}
+              style={{
+                width: '100%',
+                marginBottom: 20,
+                color: '#000000',
+                outline: 'none',
+              }}
+              classes={{ notchedOutline: 'visible' }}
               onChange={(e) => setNewPassword(e.target.value)}
-              onFocus={() => setNewPassword('')}
-            ></CustomInput>
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    edge="end"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
             <CustomButton onClick={() => handleConfirm()}>confirm</CustomButton>
             {error ? (
               <ErrorMessage>
@@ -101,7 +138,7 @@ const Container = styled.div`
   align-items: center;
 `
 
-const CustomInput = styled.input`
+const CustomInput = styled(TextField)`
   width: 100%;
   margin-bottom: 20px;
   background: transparent;

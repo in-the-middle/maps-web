@@ -1,4 +1,4 @@
-import React, { useContext, createContext, useState } from 'react'
+import React, { useContext, createContext, useState, useEffect } from 'react'
 import {
   BrowserRouter,
   Switch,
@@ -8,20 +8,37 @@ import {
   useHistory,
   useLocation,
 } from 'react-router-dom'
+import { useCookies } from 'react-cookie'
+
+import authService from 'components/apiDeclaration/apiDeclaration'
 
 import LoginPage from 'pages/Login/Login'
 import SignupPage from 'pages/Signup/Signup'
 import MainPage from 'pages/Main/Main'
 import ResetPasswordPage from 'pages/ResetPassword/ResetPassword'
+import TermsPage from 'pages/Terms/Terms'
 
 import decode from 'jwt-decode'
 
 export default function Router() {
   const [user, setUser] = useState(null)
   const [response, setResponse] = useState<any>(null)
+  const [cookies, setCookie, removeCookie] = useCookies(['refreshToken'])
+
+  useEffect(() => {
+    console.log(cookies.refreshToken)
+    /* const response = authService.refreshToken({
+      body: cookies.refreshToken,
+    })
+    console.log(response) */
+  }, [])
 
   const handleUser = (user: any) => {
     setUser(user)
+  }
+
+  const handleRefreshToken = (token: any) => {
+    setCookie('refreshToken', token)
   }
 
   const handleResponse = (res: any) => {
@@ -83,12 +100,16 @@ export default function Router() {
           <LoginPage
             handleUser={handleUser}
             handleResponse={handleResponse}
+            handleRefreshToken={handleRefreshToken}
             res={response}
             usernamee={user}
           />
         </PublicRoute>
         <PublicRoute path="/reset-password" user={user}>
           <ResetPasswordPage />
+        </PublicRoute>
+        <PublicRoute path="/terms-and-conditions" user={user}>
+          <TermsPage />
         </PublicRoute>
         <PrivateRoute path="/" user={user}>
           <MainPage user={user} />

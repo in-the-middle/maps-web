@@ -5,6 +5,16 @@ import jwtDecode from 'jwt-decode'
 
 import styled from 'styled-components'
 
+import {
+  IconButton,
+  InputAdornment,
+  TextField,
+  Button,
+} from '@material-ui/core'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
+
 import { UserDTO } from '../../authServiceApi/model'
 import MediaButton from 'components/MediaButton/MediaButton'
 
@@ -20,15 +30,16 @@ export default function Signup({
   res,
   usernamee,
 }: any) {
-  const [username, setUsername] = useState('enter username')
-  const [firstName, setFirstName] = useState('enter first name')
-  const [lastName, setLastName] = useState('enter last name')
-  const [password, setPassword] = useState('enter password')
-  const [email, setEmail] = useState('enter email')
+  const [username, setUsername] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [userCreated, setUserCreated] = useState(false)
   const [userID, setUserID] = useState('')
   const [error, setError] = useState<any>(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   const history = useHistory()
 
@@ -118,35 +129,61 @@ export default function Signup({
         {!userCreated ? (
           <div>
             <CustomInput
+              id="outlined-basic"
+              label="login"
+              variant="outlined"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              onFocus={() => setUsername('')}
-              placeholder="enter username"
+              style={{ marginBottom: 20 }}
             ></CustomInput>
             <CustomInput
+              id="outlined-basic"
+              label="first name"
+              variant="outlined"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              onFocus={() => setFirstName('')}
-              placeholder="enter first name"
+              style={{ marginBottom: 20 }}
             ></CustomInput>
             <CustomInput
+              id="outlined-basic"
+              label="last name"
+              variant="outlined"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              onFocus={() => setLastName('')}
-              placeholder="enter last name"
+              style={{ marginBottom: 20 }}
             ></CustomInput>
             <CustomInput
+              id="outlined-basic"
+              label="email"
+              variant="outlined"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onFocus={() => setEmail('')}
-              placeholder="enter password"
+              style={{ marginBottom: 20 }}
             ></CustomInput>
-            <CustomInput
+            <OutlinedInput
+              id="outlined-adornment-password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
+              style={{
+                width: '100%',
+                marginBottom: 20,
+                color: '#000000',
+                outline: 'none',
+              }}
+              classes={{ notchedOutline: 'visible' }}
               onChange={(e) => setPassword(e.target.value)}
-              onFocus={() => setPassword('')}
-              placeholder="enter password"
-            ></CustomInput>
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    edge="end"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
             <CustomButton
               onClick={() =>
                 handleClick(username, firstName, lastName, email, password)
@@ -154,26 +191,37 @@ export default function Signup({
             >
               sign up
             </CustomButton>
+
             <Info>
               or <Link onClick={() => history.push('/login')}>log in</Link>
             </Info>
+            <TermsText>
+              By continuing to use InTheMiddle, you agree to our&nbsp;
+              <TermsLink href="/terms-and-conditions" target="_blank">
+                Terms of Service and Privacy Policy
+              </TermsLink>
+            </TermsText>
+
             {error ? (
               <ErrorMessage>
                 {error.includes('EMAIL')
-                  ? 'Email already exists'
+                  ? 'Email already exists!'
                   : error.includes('USERNAME')
-                  ? 'Username already exists'
-                  : 'Weak password'}
+                  ? 'Username already exists!'
+                  : 'Weak password!'}
               </ErrorMessage>
             ) : null}
           </div>
         ) : (
           <div>
             <CustomInput
+              id="outlined-basic"
+              label="code"
+              variant="outlined"
+              style={{ marginBottom: 20 }}
               value={code}
               onChange={(e) => setCode(e.target.value)}
               onFocus={() => setCode('')}
-              placeholder="enter code"
             ></CustomInput>
 
             <CustomButton onClick={() => confirmEmail(code)}>ok</CustomButton>
@@ -202,11 +250,11 @@ const Container = styled.div`
   align-items: center;
 `
 
-const CustomInput = styled.input`
-  width: 80%;
+const CustomInput = styled(TextField)`
+  width: 100%;
   margin-bottom: 20px;
   background: transparent;
-  height: 45px;
+
   border-radius: 12px;
   box-sizing: border-box;
   border: 2px solid black;
@@ -227,7 +275,7 @@ const CustomButton = styled.button`
   border: 2px solid rgba(75, 128, 207, 1);
   background: transparent;
   height: 35px;
-  width: 100px;
+  width: 50%;
   border-radius: 8px;
   color: rgba(75, 128, 207, 1);
   cursor: pointer;
@@ -263,4 +311,25 @@ const Link = styled.strong`
   color: rgba(75, 128, 207, 1);
 `
 
-const ErrorMessage = styled.p``
+const TermsText = styled.p`
+  font-size: 15px;
+  line-height: 24px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+`
+
+const TermsLink = styled.a`
+  cursor: pointer;
+  font-size: 15px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  color: rgba(75, 128, 207, 1);
+`
+
+const ErrorMessage = styled.p`
+  cursor: pointer;
+  font-size: 24px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  color: #eb5160;
+`

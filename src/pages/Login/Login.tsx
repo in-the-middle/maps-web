@@ -2,6 +2,10 @@ import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import jwt_decode from 'jwt-decode'
 import authService from 'components/apiDeclaration/apiDeclaration'
+import { IconButton, InputAdornment, TextField } from '@material-ui/core'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
 
 import { GoogleLogin } from 'react-google-login'
 import { GoogleAuthDTO } from 'authServiceApi'
@@ -18,11 +22,13 @@ import Facebook from 'assets/icons/Interface/facebook.svg'
 export default function Login({
   handleUser,
   handleResponse,
+  handleRefreshToken,
   res,
   usernamee,
 }: any) {
   const [username, setUsername] = useState('ivan')
   const [password, setPassword] = useState('GGGggg1')
+  const [showPassword, setShowPassword] = useState(false)
 
   console.log(localStorage.getItem('accessToken'))
 
@@ -39,6 +45,7 @@ export default function Login({
       localStorage.setItem('accessToken', response.accessToken as any)
       localStorage.setItem('refreshToken', response.refreshToken as any)
       handleResponse(response)
+      handleRefreshToken(response.refreshToken?.token)
       handleUser(jwt_decode(response.accessToken?.token as any))
     } catch (e) {
       console.log(e)
@@ -69,7 +76,7 @@ export default function Login({
   return (
     <Container>
       <Content>
-        <GoogleLogin
+        <CustomGoogleLogin
           clientId="75898054002-q3s2968b0374o5jmke2bt2tupacocgjk.apps.googleusercontent.com"
           buttonText="Log in with Google"
           onSuccess={responseGoogle}
@@ -78,13 +85,37 @@ export default function Login({
         />
 
         <CustomInput
+          id="outlined-basic"
+          label="login"
+          variant="outlined"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         ></CustomInput>
-        <CustomInput
+        <OutlinedInput
+          id="outlined-adornment-password"
+          type={showPassword ? 'text' : 'password'}
           value={password}
+          style={{
+            width: '100%',
+            marginTop: 20,
+            marginBottom: 20,
+            color: '#000000',
+            outline: 'none',
+          }}
+          classes={{ notchedOutline: 'visible' }}
           onChange={(e) => setPassword(e.target.value)}
-        ></CustomInput>
+          endAdornment={
+            <InputAdornment position="end">
+              <IconButton
+                aria-label="toggle password visibility"
+                edge="end"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          }
+        />
         <CustomButton onClick={() => handleClick(username, password)}>
           login
         </CustomButton>
@@ -116,25 +147,9 @@ const Container = styled.div`
   align-items: center;
 `
 
-const CustomInput = styled.input`
+const CustomInput = styled(TextField)`
   width: 100%;
   margin-bottom: 20px;
-  background: transparent;
-  height: 45px;
-  border-radius: 12px;
-  box-sizing: border-box;
-  border: 2px solid black;
-  outline: none;
-
-  padding: 0 15px 0 15px;
-  font-size: 20px;
-  line-height: 24px;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 600;
-
-  :focus {
-    border: 3px solid black;
-  }
 `
 
 const CustomButton = styled.button`
@@ -175,4 +190,9 @@ const Link = styled.strong`
   font-family: 'Montserrat', sans-serif;
   font-weight: 400;
   color: rgba(75, 128, 207, 1);
+`
+
+const CustomGoogleLogin = styled(GoogleLogin)`
+  width: 100%;
+  margin-bottom: 20px;
 `

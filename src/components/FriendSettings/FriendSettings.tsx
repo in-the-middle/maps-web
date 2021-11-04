@@ -174,7 +174,9 @@ export default function FriendSettings(props: any) {
           <ShareLocationButton onClick={() => addFriend(username)}>
             accept
           </ShareLocationButton>
-          <DeleteFriendButton>decline</DeleteFriendButton>
+          <DeleteFriendButton onClick={() => deleteFriend(username)}>
+            decline
+          </DeleteFriendButton>
         </ButtonContainer>
       </FriendsContainer>
     )
