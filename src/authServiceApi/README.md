@@ -39,7 +39,7 @@ navigate to the folder of your consuming project and run one of the following co
 _published:_
 
 ```
-npm install @ua.trip.auth.service/authServiceApi@1.0.2021-10-28T19:43:36Z --save
+npm install @ua.trip.auth.service/authServiceApi@1.0.2021-11-04T05:13:54Z --save
 ```
 
 _unPublished (not recommended):_

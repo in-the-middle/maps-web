@@ -20,6 +20,7 @@ import {
     LocationDTO,
     LocationPermissionDTO,
     PasswordResetStatusDTO,
+    RefreshTokenDTO,
     StatusDTO,
     TokenDTO,
     TokensDTO,
@@ -112,7 +113,7 @@ export interface DefaultApiInterface {
      * @memberof DefaultApi
      */
     refreshToken(params?: {
-        body: string;
+        refreshTokenDTO: RefreshTokenDTO;
     }): Promise<TokenDTO>;
     /**
      *
@@ -285,12 +286,12 @@ export class DefaultApi extends BaseAPI implements DefaultApiInterface {
      * @throws {HttpError}
      */
     public async refreshToken(params: {
-        body: string;
+        refreshTokenDTO: RefreshTokenDTO;
     }): Promise<TokenDTO> {
         return await this.POST(
             "/authentication/refresh-token",
             {},
-            { body: params.body, contentType: "text/plain" }
+            { body: params.refreshTokenDTO, contentType: "application/json" }
         );
     }
     /**

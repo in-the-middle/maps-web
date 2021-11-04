@@ -20,6 +20,7 @@ import {
     LocationDTO,
     LocationPermissionDTO,
     PasswordResetStatusDTO,
+    RefreshTokenDTO,
     StatusDTO,
     TokenDTO,
     TokensDTO,

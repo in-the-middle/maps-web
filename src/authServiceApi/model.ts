@@ -82,6 +82,13 @@ export enum PasswordResetStatusDTO {
     WRONGCODE = "WRONG_CODE",
     WEAKPASSWORD = "WEAK_PASSWORD",
 }
+
+/**
+ * Object that represents Refresh Token
+ */
+export interface RefreshTokenDTO {
+    token?: string;
+}
 /**
  * @export
  * @enum {string}

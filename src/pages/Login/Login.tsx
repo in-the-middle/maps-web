@@ -30,8 +30,6 @@ export default function Login({
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  console.log(localStorage.getItem('accessToken'))
-
   const history = useHistory()
 
   async function handleClick(username: any, password: any) {
@@ -67,6 +65,7 @@ export default function Login({
       })
       handleResponse(authResponse)
       handleUser(jwt_decode(authResponse.accessToken?.token as any))
+      handleRefreshToken(authResponse.refreshToken?.token)
     } catch (e) {
       console.log(e)
     }

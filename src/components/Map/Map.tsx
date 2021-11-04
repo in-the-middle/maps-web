@@ -18,6 +18,9 @@ import { LatLngBoundsExpression } from 'leaflet'
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
 import Loader from 'react-loader-spinner'
 import MediaQuery from 'react-responsive'
+import fetchIntercept from 'fetch-intercept'
+
+import axios from 'axios'
 
 import { DefaultApi } from '../../mapsApi/api'
 import {
@@ -110,6 +113,11 @@ const routeOptions = { color: '#01B0E8', weight: 8 }
 
 interface MapProps {
   user: any
+  handleResponse: any
+  handleUser: any
+  handleRefreshToken: any
+  removeRefreshToken: any
+  response: any
 }
 
 interface RouteProps {
@@ -214,6 +222,12 @@ class Map extends React.Component<MapProps, any> {
 
     this.setState({ friends: response })
     console.log(locationShare)
+  }
+
+  handleLogout() {
+    this.props.handleResponse(null)
+    this.props.handleUser(null)
+    this.props.handleRefreshToken(null)
   }
 
   addFriendMarker(username: any) {
@@ -358,7 +372,32 @@ class Map extends React.Component<MapProps, any> {
     ) : null
   }
 
-  async routeD() {
+  async routeD(token: any) {
+    console.log(token)
+    const registerFetch = fetchIntercept.register({
+      request: function (url, config) {
+        let newConfig = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+        return [url, newConfig]
+      },
+      requestError: function (error) {
+        // Called when an error occured during another 'request' interceptor call
+        return Promise.reject(error)
+      },
+      response: function (response) {
+        // Modify the reponse object
+        return response
+      },
+      responseError: function (error) {
+        // Handle an fetch error
+        return Promise.reject(error)
+      },
+    })
+
+    console.log(this.props.response)
     for (let i = 0; i < this.state.addedFriends.length; i++) {
       console.log(this.state.addedFriends[i])
       if (this.state.addedFriends[i].lat && this.state.addedFriends[i].lon) {
@@ -396,6 +435,8 @@ class Map extends React.Component<MapProps, any> {
         usersObject.push(userInfo)
       }
       usersInfo = { users: usersObject }
+      console.log(this.props.response.token)
+      axios.defaults.headers.common['Authorization'] = this.props.response.token
       let CenterPoint = await apiService.getCenter({
         centerInputDTO: usersInfo,
       })
@@ -419,6 +460,12 @@ class Map extends React.Component<MapProps, any> {
           includeHighways: this.state.includeHighways,
           includeFerries: this.state.includeFerries,
         } as RouteInputDTO
+
+        axios.get('https://maps-be-v1-45iud4jnfq-uc.a.run.app/getRoute', {
+          headers: {
+            Authorization: 'Bearer ' + this.props.response.token,
+          },
+        })
         console.log(route)
         let routeResult = await apiService.getRoute({ routeInputDTO: route })
         let { centerTime } = this.state
@@ -573,7 +620,8 @@ class Map extends React.Component<MapProps, any> {
                 {!this.state.builded ? (
                   <BuildButton
                     onClick={() => {
-                      if (!this.state.builded) this.routeD()
+                      if (!this.state.builded)
+                        this.routeD(this.props.response.token)
                     }}
                   >
                     Build
@@ -592,6 +640,9 @@ class Map extends React.Component<MapProps, any> {
                 >
                   Settings
                 </SettingsButton>
+                <ClearButton onClick={() => this.handleLogout()}>
+                  Logout
+                </ClearButton>
                 <LocationButton
                   onClick={() => {
                     if (this.state.location) userLocationFlag = false
@@ -655,7 +706,8 @@ class Map extends React.Component<MapProps, any> {
                   {!this.state.builded ? (
                     <BuildButton
                       onClick={() => {
-                        if (!this.state.builded) this.routeD()
+                        if (!this.state.builded)
+                          this.routeD(this.props.response.token)
                       }}
                     >
                       Build
@@ -888,6 +940,31 @@ const SettingsButton = styled.button`
 `
 
 const ClearButton = styled.button`
+  height: 50px;
+  display: flex;
+  align-self: center;
+  flex-direction: row;
+  margin-left: 7.5px;
+  margin-right: 7.5px;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  border-radius: 12px;
+  background: #eb5160;
+  border: 0px;
+  font-weight: 500;
+  font-size: 20px;
+  color: white;
+
+  :hover {
+    background: #a83a45;
+    cursor: pointer;
+  }
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+`
+
+const LogoutButton = styled.button`
   height: 50px;
   display: flex;
   align-self: center;

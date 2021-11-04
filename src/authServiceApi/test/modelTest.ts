@@ -8,6 +8,7 @@ import {
     LocationDTO,
     LocationPermissionDTO,
     PasswordResetStatusDTO,
+    RefreshTokenDTO,
     StatusDTO,
     TokenDTO,
     TokensDTO,
@@ -75,6 +76,7 @@ export interface SampleModelFactories {
     LocationDTO?: ModelFactory<LocationDTO>;
     LocationPermissionDTO?: ModelFactory<LocationPermissionDTO>;
     PasswordResetStatusDTO?: ModelFactory<PasswordResetStatusDTO>;
+    RefreshTokenDTO?: ModelFactory<RefreshTokenDTO>;
     StatusDTO?: ModelFactory<StatusDTO>;
     TokenDTO?: ModelFactory<TokenDTO>;
     TokensDTO?: ModelFactory<TokensDTO>;
@@ -280,6 +282,10 @@ export class TestSampleData {
                 return this.samplePasswordResetStatusDTO();
             case "Array<PasswordResetStatusDTO>":
                 return this.sampleArrayPasswordResetStatusDTO();
+            case "RefreshTokenDTO":
+                return this.sampleRefreshTokenDTO();
+            case "Array<RefreshTokenDTO>":
+                return this.sampleArrayRefreshTokenDTO();
             case "StatusDTO":
                 return this.sampleStatusDTO();
             case "Array<StatusDTO>":
@@ -523,6 +529,30 @@ export class TestSampleData {
     sampleArrayPasswordResetStatusDTO(length?: number): Array<PasswordResetStatusDTO> {
         return this.randomArray(
             () => this.samplePasswordResetStatusDTO(),
+            length ?? this.arrayLength()
+        );
+    }
+
+    sampleRefreshTokenDTO(template: Factory<RefreshTokenDTO> = {}): RefreshTokenDTO {
+        const containerClass = "RefreshTokenDTO";
+        if (typeof this.sampleModelProperties[containerClass] === "function") {
+            return this.sampleModelProperties[containerClass](this);
+        }
+        return {
+            token: this.generate(
+                template?.token,
+                { containerClass, propertyName: "token", isNullable: false },
+                () => this.sampleString("", "null")
+            ),
+        };
+    }
+
+    sampleArrayRefreshTokenDTO(
+        template: Factory<RefreshTokenDTO> = {},
+        length?: number
+    ): Array<RefreshTokenDTO> {
+        return this.randomArray(
+            () => this.sampleRefreshTokenDTO(template),
             length ?? this.arrayLength()
         );
     }

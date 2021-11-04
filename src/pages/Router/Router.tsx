@@ -18,19 +18,37 @@ import MainPage from 'pages/Main/Main'
 import ResetPasswordPage from 'pages/ResetPassword/ResetPassword'
 import TermsPage from 'pages/Terms/Terms'
 
-import decode from 'jwt-decode'
+import jwt_decode from 'jwt-decode'
+import { RefreshTokenDTO } from 'authServiceApi/model'
 
 export default function Router() {
   const [user, setUser] = useState(null)
   const [response, setResponse] = useState<any>(null)
   const [cookies, setCookie, removeCookie] = useCookies(['refreshToken'])
+  const [isLogged, setIsLogged] = useState(!!cookies.refreshToken)
 
   useEffect(() => {
-    console.log(cookies.refreshToken)
-    /* const response = authService.refreshToken({
-      body: cookies.refreshToken,
-    })
-    console.log(response) */
+    async function refreshToken() {
+      console.log(cookies.refreshToken)
+      const refreshTokenDTO = {
+        token: cookies.refreshToken,
+      } as RefreshTokenDTO
+      try {
+        const response = await authService.refreshToken({
+          refreshTokenDTO: refreshTokenDTO,
+        })
+        console.log(response)
+        setUser(jwt_decode(response.token as any))
+        setResponse(response)
+        console.log(user)
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
+    refreshToken()
+    console.log(user)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleUser = (user: any) => {
@@ -41,9 +59,12 @@ export default function Router() {
     setCookie('refreshToken', token)
   }
 
+  const removeRefreshToken = () => {
+    removeCookie('refreshToken')
+  }
+
   const handleResponse = (res: any) => {
     setResponse(res)
-    console.log(res)
   }
 
   const checkAuth = () => {
@@ -58,7 +79,7 @@ export default function Router() {
 
     try {
       // { exp: 12903819203 }
-      const tokenInfo: any = decode(response.accessToken.token)
+      const tokenInfo: any = jwt_decode(response.accessToken.token)
       console.log(tokenInfo)
 
       if (tokenInfo.exp < new Date().getTime() / 1000) {
@@ -112,7 +133,14 @@ export default function Router() {
           <TermsPage />
         </PublicRoute>
         <PrivateRoute path="/" user={user}>
-          <MainPage user={user} />
+          <MainPage
+            response={response}
+            user={user}
+            handleUser={handleUser}
+            handleResponse={handleResponse}
+            handleRefreshToken={handleRefreshToken}
+            removeRefreshToken={removeRefreshToken}
+          />
         </PrivateRoute>
       </Switch>
     </BrowserRouter>
@@ -123,12 +151,12 @@ const PublicRoute = ({ children, user }: any) => {
   return (
     <Route
       render={({ location }) =>
-        true ? (
+        !user ? (
           children
         ) : (
           <Redirect
             to={{
-              pathname: '/login',
+              pathname: '/',
               state: { from: location },
             }}
           />
