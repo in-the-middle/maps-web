@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -10,46 +10,46 @@ import {
   ZoomControl,
   useMap,
   Tooltip,
-} from 'react-leaflet'
-import { LatLngExpression, marker } from 'leaflet'
-import 'components/Map/Map.css'
-import { MyMarkerIcon, FriendsMarkerIcon } from 'assets/icons/Map/MyMarker'
-import { LatLngBoundsExpression } from 'leaflet'
-import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
-import Loader from 'react-loader-spinner'
-import MediaQuery from 'react-responsive'
-import fetchIntercept from 'fetch-intercept'
+} from "react-leaflet";
+import { LatLngExpression, marker } from "leaflet";
+import "components/Map/Map.css";
+import { MyMarkerIcon, FriendsMarkerIcon } from "assets/icons/Map/MyMarker";
+import { LatLngBoundsExpression } from "leaflet";
+import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+import Loader from "react-loader-spinner";
+import MediaQuery from "react-responsive";
+import fetchIntercept from "fetch-intercept";
 
-import axios from 'axios'
+import axios from "axios";
 
-import { DefaultApi } from '../../mapsApi/api'
+import { DefaultApi } from "../../mapsApi/api";
 import {
   CenterInputDTO,
   RouteInputDTO,
   TravelModeDTO,
-} from '../../mapsApi/model'
+} from "../../mapsApi/model";
 
-import SearchInput from 'components/SearchInput/searchInput'
-import VehicleButton from 'components/VehicleButton/vehicleButton'
-import AvoidSwitch from 'components/avoidSwitch/avoidSwitch'
-import FriendsPopup from 'components/friendsPopup/friendsPopup'
-import FriendSettings from 'components/FriendSettings/FriendSettings'
+import SearchInput from "components/SearchInput/searchInput";
+import VehicleButton from "components/VehicleButton/vehicleButton";
+import AvoidSwitch from "components/avoidSwitch/avoidSwitch";
+import FriendsPopup from "components/friendsPopup/friendsPopup";
+import FriendSettings from "components/FriendSettings/FriendSettings";
 
-import LocationOn from 'assets/icons/Interface/locationOn.svg'
-import LocationOff from 'assets/icons/Interface/locationOff.svg'
+import LocationOn from "assets/icons/Interface/locationOn.svg";
+import LocationOff from "assets/icons/Interface/locationOff.svg";
 
-import authService from 'components/apiDeclaration/apiDeclaration'
+import authService from "components/apiDeclaration/apiDeclaration";
 
-import MyInfo from 'components/Map/Interface'
+import MyInfo from "components/Map/Interface";
 
-import { friends } from 'mocks/friends'
+import { friends } from "mocks/friends";
 
-import styled from 'styled-components'
-import { LocationDTO } from 'authServiceApi'
+import styled from "styled-components";
+import { LocationDTO } from "authServiceApi";
 
 declare global {
   interface Window {
-    _env_: any
+    _env_: any;
   }
 }
 
@@ -63,116 +63,116 @@ function decode(str: any, precision?: number) {
     byte = null,
     latitude_change,
     longitude_change,
-    factor = Math.pow(10, precision || 6)
+    factor = Math.pow(10, precision || 6);
 
   while (index < str.length) {
-    byte = null
-    shift = 0
-    result = 0
+    byte = null;
+    shift = 0;
+    result = 0;
 
     do {
-      byte = str.charCodeAt(index++) - 63
-      result |= (byte & 0x1f) << shift
-      shift += 5
-    } while (byte >= 0x20)
+      byte = str.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20);
 
-    latitude_change = result & 1 ? ~(result >> 1) : result >> 1
+    latitude_change = result & 1 ? ~(result >> 1) : result >> 1;
 
-    shift = result = 0
+    shift = result = 0;
 
     do {
-      byte = str.charCodeAt(index++) - 63
-      result |= (byte & 0x1f) << shift
-      shift += 5
-    } while (byte >= 0x20)
+      byte = str.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20);
 
-    longitude_change = result & 1 ? ~(result >> 1) : result >> 1
+    longitude_change = result & 1 ? ~(result >> 1) : result >> 1;
 
-    lat += latitude_change
-    lng += longitude_change
+    lat += latitude_change;
+    lng += longitude_change;
 
-    coordinates.push([lat / factor, lng / factor])
+    coordinates.push([lat / factor, lng / factor]);
   }
 
-  return coordinates
+  return coordinates;
 }
 
-let coords = [] as any
+let coords = [] as any;
 
-let usersInfo = { users: [] } as CenterInputDTO
-let centerRoutes = [[]]
-let userLocation = [] as any
-let userLocationFlag = false
+let usersInfo = { users: [] } as CenterInputDTO;
+let centerRoutes = [[]];
+let userLocation = [] as any;
+let userLocationFlag = false;
 
 let centerLat = 0,
-  centerLon = 0
+  centerLon = 0;
 
-const apiService = new DefaultApi('https://maps-be-v1-45iud4jnfq-uc.a.run.app')
+const apiService = new DefaultApi("https://maps-be-v1-45iud4jnfq-uc.a.run.app");
 
-const routeOptions = { color: '#01B0E8', weight: 8 }
+const routeOptions = { color: "#01B0E8", weight: 8 };
 
 interface MapProps {
-  user: any
-  handleResponse: any
-  handleUser: any
-  handleRefreshToken: any
-  removeRefreshToken: any
-  response: any
+  user: any;
+  handleResponse: any;
+  handleUser: any;
+  handleRefreshToken: any;
+  removeRefreshToken: any;
+  response: any;
 }
 
 interface RouteProps {
-  centerRoutes: Array<Array<Array<number>>>
-  centerLat: number
-  centerLon: number
+  centerRoutes: Array<Array<Array<number>>>;
+  centerLat: number;
+  centerLon: number;
 }
 
-var locationShare = [] as any
+var locationShare = [] as any;
 function LocationShare(props: any) {
-  const map = useMap()
+  const map = useMap();
   useEffect(() => {
-    map.locate().on('locationfound', function (e) {
-      locationShare = e.latlng
-      console.log(locationShare)
-    })
-  }, [])
-  return <div></div>
+    map.locate().on("locationfound", function (e) {
+      locationShare = e.latlng;
+      console.log(locationShare);
+    });
+  }, []);
+  return <div></div>;
 }
 
 function LocationMarker(props: any) {
-  const { username } = props
-  const [position, setPosition] = useState([0, 0] as LatLngExpression)
-  const [bbox, setBbox] = useState([])
+  const { username } = props;
+  const [position, setPosition] = useState([0, 0] as LatLngExpression);
+  const [bbox, setBbox] = useState([]);
 
-  const map = useMap()
+  const map = useMap();
 
   useEffect(() => {
-    map.locate().on('locationfound', function (e) {
-      map.flyTo(e.latlng, map.getZoom())
-      setBbox(e.bounds.toBBoxString().split(',') as any)
-      userLocation = [e.latlng.lat, e.latlng.lng]
-      userLocationFlag = true
-      setPosition(e.latlng)
-    })
-  }, [])
+    map.locate().on("locationfound", function (e) {
+      map.flyTo(e.latlng, map.getZoom());
+      setBbox(e.bounds.toBBoxString().split(",") as any);
+      userLocation = [e.latlng.lat, e.latlng.lng];
+      userLocationFlag = true;
+      setPosition(e.latlng);
+    });
+  }, []);
 
   return position === null ? null : (
     <Marker position={position} icon={MyMarkerIcon}>
-      <UserTooltop direction={'bottom'} offset={[0, 25]} permanent>
+      <UserTooltop direction={"bottom"} offset={[0, 25]} permanent>
         {username}
       </UserTooltop>
     </Marker>
-  )
+  );
 }
 
 class Map extends React.Component<MapProps, any> {
   constructor(props: any) {
-    super(props)
+    super(props);
     this.state = {
       markers: [],
       centerTime: [],
       builded: false,
       settingsMenuOpened: false,
-      mode: 'DRIVING',
+      mode: "DRIVING",
       modeDTO: TravelModeDTO.DRIVING,
       includeTolls: true,
       includeHighways: true,
@@ -183,23 +183,23 @@ class Map extends React.Component<MapProps, any> {
         [40.49751, -74.263481],
         [40.93053, -73.546144],
       ] as LatLngBoundsExpression,
-      setting: 'preferences',
+      setting: "preferences",
       friends: [],
-      firstSearchValue: '',
+      firstSearchValue: "",
       displayedFriends: [],
       addedFriends: [],
       changesApplied: false,
-    }
-    this.handleBuild = this.handleBuild.bind(this)
-    this.handleModeDriving = this.handleModeDriving.bind(this)
-    this.handleModeBicycling = this.handleModeBicycling.bind(this)
-    this.handleModeWalking = this.handleModeWalking.bind(this)
-    this.handleModeTransit = this.handleModeTransit.bind(this)
-    this.newMarker = this.newMarker.bind(this)
-    this.onValueChange = this.onValueChange.bind(this)
-    this.checkDisplayedFriend = this.checkDisplayedFriend.bind(this)
-    this.addFriendMarker = this.addFriendMarker.bind(this)
-    this.changeFriendsList = this.changeFriendsList.bind(this)
+    };
+    this.handleBuild = this.handleBuild.bind(this);
+    this.handleModeDriving = this.handleModeDriving.bind(this);
+    this.handleModeBicycling = this.handleModeBicycling.bind(this);
+    this.handleModeWalking = this.handleModeWalking.bind(this);
+    this.handleModeTransit = this.handleModeTransit.bind(this);
+    this.newMarker = this.newMarker.bind(this);
+    this.onValueChange = this.onValueChange.bind(this);
+    this.checkDisplayedFriend = this.checkDisplayedFriend.bind(this);
+    this.addFriendMarker = this.addFriendMarker.bind(this);
+    this.changeFriendsList = this.changeFriendsList.bind(this);
   }
 
   async componentDidMount() {
@@ -207,173 +207,175 @@ class Map extends React.Component<MapProps, any> {
       queryParams: {
         id: this.props.user.userId,
       },
-    })
+    });
 
-    console.log(locationShare)
+    console.log(locationShare);
 
     const request = {
       id: this.props.user.userId,
       lat: locationShare.lat,
       lon: locationShare.lng,
-    } as LocationDTO
+    } as LocationDTO;
 
-    const locResponse = await authService.saveLocation({ locationDTO: request })
-    console.log(locResponse)
+    const locResponse = await authService.saveLocation({
+      locationDTO: request,
+    });
+    console.log(locResponse);
 
-    this.setState({ friends: response })
-    console.log(locationShare)
+    this.setState({ friends: response });
+    console.log(locationShare);
   }
 
   handleLogout() {
-    this.props.handleResponse(null)
-    this.props.handleUser(null)
-    this.props.handleRefreshToken(null)
+    this.props.handleResponse(null);
+    this.props.handleUser(null);
+    this.props.handleRefreshToken(null);
   }
 
   addFriendMarker(username: any) {
-    console.log(this.state.markers)
-    const addedFriends = [...this.state.addedFriends]
+    console.log(this.state.markers);
+    const addedFriends = [...this.state.addedFriends];
     const alreadyAdded = addedFriends.find(
-      (friend: any) => friend.username === username,
-    )
+      (friend: any) => friend.username === username
+    );
     if (!!alreadyAdded) {
-      const addedIndex = addedFriends.indexOf(alreadyAdded)
-      addedFriends.splice(addedIndex, 1)
+      const addedIndex = addedFriends.indexOf(alreadyAdded);
+      addedFriends.splice(addedIndex, 1);
     } else {
       const uniqueFriend = this.state.friends.find(
-        (friend: any) => friend.username === username,
-      )
-      addedFriends.push(uniqueFriend)
+        (friend: any) => friend.username === username
+      );
+      addedFriends.push(uniqueFriend);
     }
-    console.log(addedFriends)
-    this.setState({ addedFriends })
+    console.log(addedFriends);
+    this.setState({ addedFriends });
   }
 
   checkDisplayedFriend(username: number) {
-    console.log(username)
-    const markers = [...this.state.markers]
-    const displayedFriends = [...this.state.displayedFriends]
+    console.log(username);
+    const markers = [...this.state.markers];
+    const displayedFriends = [...this.state.displayedFriends];
     const alreadyDisplayed = displayedFriends.find(
-      (friend: any) => friend.username === username,
-    )
+      (friend: any) => friend.username === username
+    );
 
     if (!!alreadyDisplayed) {
-      const displayedIndex = displayedFriends.indexOf(alreadyDisplayed)
+      const displayedIndex = displayedFriends.indexOf(alreadyDisplayed);
       const displayedMarker = markers.find(
         (marker: any) =>
           marker[0] === alreadyDisplayed.lat &&
-          marker[1] === alreadyDisplayed.lon,
-      )
-      const markerIndex = markers.indexOf(displayedMarker)
-      markers.splice(markerIndex, 1)
-      displayedFriends.splice(displayedIndex, 1)
+          marker[1] === alreadyDisplayed.lon
+      );
+      const markerIndex = markers.indexOf(displayedMarker);
+      markers.splice(markerIndex, 1);
+      displayedFriends.splice(displayedIndex, 1);
     } else {
-      console.log(markers)
+      console.log(markers);
       const uniqueFriend = this.state.friends.find(
-        (friend: any) => friend.username === username,
-      )
-      markers.push([uniqueFriend.lat, uniqueFriend.lon])
-      displayedFriends.push(uniqueFriend)
+        (friend: any) => friend.username === username
+      );
+      markers.push([uniqueFriend.lat, uniqueFriend.lon]);
+      displayedFriends.push(uniqueFriend);
     }
-    this.setState({ displayedFriends })
-    this.setState({ markers })
+    this.setState({ displayedFriends });
+    this.setState({ markers });
   }
 
   newMarker() {
-    const markers = this.state
-    markers.push([40.695841, -73.913678])
-    this.setState({ markers })
+    const markers = this.state;
+    markers.push([40.695841, -73.913678]);
+    this.setState({ markers });
   }
 
   addMarker = (e: any) => {
-    const { markers } = this.state
-    markers.push([e.latlng.lat, e.latlng.lng])
-    this.setState({ markers })
-  }
+    const { markers } = this.state;
+    markers.push([e.latlng.lat, e.latlng.lng]);
+    this.setState({ markers });
+  };
 
   onValueChange = (value: string) => {
     this.setState(() => ({
       firstSearchValue: value,
-    }))
-  }
+    }));
+  };
 
   changeFriendsList = (friends: any) => {
     this.setState(() => ({
       friends: friends,
-    }))
-  }
+    }));
+  };
 
   handleBuild() {
     this.setState(() => ({
       builded: true,
-    }))
+    }));
   }
 
   handleModeDriving() {
     this.setState(() => ({
-      mode: 'DRIVING',
+      mode: "DRIVING",
       modeDTO: TravelModeDTO.DRIVING,
-    }))
+    }));
   }
 
   handleModeBicycling() {
     this.setState(() => ({
-      mode: 'BICYCLING',
+      mode: "BICYCLING",
       modeDTO: TravelModeDTO.BICYCLING,
-    }))
+    }));
   }
 
   handleModeWalking() {
     this.setState(() => ({
-      mode: 'WALKING',
+      mode: "WALKING",
       modeDTO: TravelModeDTO.WALKING,
-    }))
+    }));
   }
 
   handleModeTransit() {
     this.setState(() => ({
-      mode: 'TRANSIT',
+      mode: "TRANSIT",
       modeDTO: TravelModeDTO.TRANSIT,
-    }))
+    }));
   }
 
   handleTolls() {
     this.setState(() => ({
       includeTolls: !this.state.includeTolls,
-    }))
+    }));
   }
 
   handleHighways() {
     this.setState(() => ({
       includeHighways: !this.state.includeHighways,
-    }))
+    }));
   }
 
   handleFerries() {
     this.setState(() => ({
       includeFerries: !this.state.includeFerries,
-    }))
+    }));
   }
 
   FriendMarkers(props: any) {
-    const { displayedFriends } = props
+    const { displayedFriends } = props;
 
     return displayedFriends ? (
       <div>
         {displayedFriends.map((friend: any) => (
           <Marker position={[friend.lat, friend.lon]} icon={MyMarkerIcon}>
-            <FriendsTooltop direction={'bottom'} offset={[0, 25]} permanent>
-              {'@'}
+            <FriendsTooltop direction={"bottom"} offset={[0, 25]} permanent>
+              {"@"}
               {friend.username}
             </FriendsTooltop>
           </Marker>
         ))}
       </div>
-    ) : null
+    ) : null;
   }
 
   async routeD(token: any) {
-    console.log(token)
+    /*  console.log(token)
     const registerFetch = fetchIntercept.register({
       request: function (url, config) {
         let newConfig = {
@@ -395,32 +397,32 @@ class Map extends React.Component<MapProps, any> {
         // Handle an fetch error
         return Promise.reject(error)
       },
-    })
+    }) */
 
-    console.log(this.props.response)
+    console.log(this.props.response);
     for (let i = 0; i < this.state.addedFriends.length; i++) {
-      console.log(this.state.addedFriends[i])
+      console.log(this.state.addedFriends[i]);
       if (this.state.addedFriends[i].lat && this.state.addedFriends[i].lon) {
-        const { markers } = this.state
+        const { markers } = this.state;
         markers.push([
           this.state.addedFriends[i].lat,
           this.state.addedFriends[i].lon,
-        ])
-        this.setState({ markers })
+        ]);
+        this.setState({ markers });
       }
-      console.log(this.state.markers)
+      console.log(this.state.markers);
     }
     if (
       (this.state.markers.length > 0 && !userLocationFlag) ||
       (this.state.markers.length > 0 && userLocationFlag)
     ) {
-      this.setState({ loading: true })
+      this.setState({ loading: true });
       if (userLocationFlag) {
-        const { markers } = this.state
-        markers.push(userLocation)
-        this.setState({ markers })
+        const { markers } = this.state;
+        markers.push(userLocation);
+        this.setState({ markers });
       }
-      let usersObject = [] as any
+      let usersObject = [] as any;
       for (let i = 0; i < this.state.markers.length; i++) {
         let userInfo = {
           location: {
@@ -431,27 +433,28 @@ class Map extends React.Component<MapProps, any> {
           includeTolls: this.state.includeTolls,
           includeHighways: this.state.includeHighways,
           includeFerries: this.state.includeFerries,
-        }
-        usersObject.push(userInfo)
+        };
+        usersObject.push(userInfo);
       }
-      usersInfo = { users: usersObject }
-      console.log(this.props.response.token)
-      axios.defaults.headers.common['Authorization'] = this.props.response.token
+      usersInfo = { users: usersObject };
+      console.log(this.props.response.token);
+      axios.defaults.headers.common["Authorization"] =
+        this.props.response.token;
       let CenterPoint = await apiService.getCenter({
         centerInputDTO: usersInfo,
-      })
-      centerLat = CenterPoint.location?.lat!
-      centerLon = CenterPoint.location?.lon!
-      centerRoutes = []
+      });
+      centerLat = CenterPoint.location?.lat!;
+      centerLon = CenterPoint.location?.lon!;
+      centerRoutes = [];
       for (let i = 0; i < this.state.markers.length; i++) {
         let APoint = {
           lat: this.state.markers[i][0],
           lon: this.state.markers[i][1],
-        }
+        };
         let BPoint = {
           lat: CenterPoint.location?.lat,
           lon: CenterPoint.location?.lon,
-        }
+        };
         let route = {
           mode: this.state.modeDTO,
           origin: APoint,
@@ -459,40 +462,40 @@ class Map extends React.Component<MapProps, any> {
           includeTolls: this.state.includeTolls,
           includeHighways: this.state.includeHighways,
           includeFerries: this.state.includeFerries,
-        } as RouteInputDTO
+        } as RouteInputDTO;
 
-        axios.get('https://maps-be-v1-45iud4jnfq-uc.a.run.app/getRoute', {
+        axios.get("https://maps-be-v1-45iud4jnfq-uc.a.run.app/getRoute", {
           headers: {
-            Authorization: 'Bearer ' + this.props.response.token,
+            Authorization: "Bearer " + this.props.response.token,
           },
-        })
-        console.log(route)
-        let routeResult = await apiService.getRoute({ routeInputDTO: route })
-        let { centerTime } = this.state
-        centerTime.push(routeResult.summary?.time)
-        this.setState({ centerTime })
-        coords = decode(routeResult.shape)
-        centerRoutes.push(coords)
+        });
+        console.log(route);
+        let routeResult = await apiService.getRoute({ routeInputDTO: route });
+        let { centerTime } = this.state;
+        centerTime.push(routeResult.summary?.time);
+        this.setState({ centerTime });
+        coords = decode(routeResult.shape);
+        centerRoutes.push(coords);
       }
-      this.setState({ builded: true })
-      this.setState({ loading: false })
+      this.setState({ builded: true });
+      this.setState({ loading: false });
     }
   }
 
   clearRoutes() {
-    var markers = [...this.state.markers]
-    markers = []
+    var markers = [...this.state.markers];
+    markers = [];
     this.state.displayedFriends.map((friend: any) =>
-      markers.push([friend.lat, friend.lon]),
-    )
-    this.setState({ markers, builded: false, centerTime: [] })
+      markers.push([friend.lat, friend.lon])
+    );
+    this.setState({ markers, builded: false, centerTime: [] });
   }
 
   Routes(_Props: RouteProps) {
     return (
       <div>
         <Marker icon={FriendsMarkerIcon} position={[centerLat, centerLon]}>
-          <CenterPointTooltop direction={'bottom'} offset={[0, 25]} permanent>
+          <CenterPointTooltop direction={"bottom"} offset={[0, 25]} permanent>
             center point
           </CenterPointTooltop>
         </Marker>
@@ -504,18 +507,18 @@ class Map extends React.Component<MapProps, any> {
                 pathOptions={routeOptions}
                 key={index}
               />
-            )
+            );
           })}
         </>
       </div>
-    )
+    );
   }
 
   render() {
     const locationMarkerProps = {
       newMarker: this.newMarker,
       user: this.props.user,
-    }
+    };
     return (
       <div className="leaflet-container">
         <MediaQuery minWidth={850}>
@@ -524,16 +527,16 @@ class Map extends React.Component<MapProps, any> {
               <SearchInput
                 value={this.state.firstSearchValue}
                 onValueChange={this.onValueChange}
-                title={'Enter the point'}
-                icon={'first'}
+                title={"Enter the point"}
+                icon={"first"}
               />
               <SearchInput
                 value=""
                 onValueChange={() => {}}
-                title={'Enter the point'}
-                icon={'second'}
+                title={"Enter the point"}
+                icon={"second"}
               />
-              {this.state.firstSearchValue === '@' ? (
+              {this.state.firstSearchValue === "@" ? (
                 <FriendsPopup
                   user={this.props.user}
                   friends={this.state.friends}
@@ -549,7 +552,7 @@ class Map extends React.Component<MapProps, any> {
                     <SwitchSetting
                       onClick={() =>
                         this.setState(() => ({
-                          setting: 'preferences',
+                          setting: "preferences",
                         }))
                       }
                     >
@@ -558,27 +561,27 @@ class Map extends React.Component<MapProps, any> {
                     <SwitchSetting
                       onClick={() =>
                         this.setState(() => ({
-                          setting: 'friends',
+                          setting: "friends",
                         }))
                       }
                     >
                       Friends
                     </SwitchSetting>
                   </SwitchSettingContainer>
-                  {this.state.setting === 'preferences' ? (
+                  {this.state.setting === "preferences" ? (
                     <div>
                       <AvoidSwitch
-                        title={'avoid tolls'}
+                        title={"avoid tolls"}
                         enabled={this.state.includeTolls}
                         onPress={() => this.handleTolls()}
                       />
                       <AvoidSwitch
-                        title={'avoid highways'}
+                        title={"avoid highways"}
                         enabled={this.state.includeHighways}
                         onPress={() => this.handleHighways()}
                       />
                       <AvoidSwitch
-                        title={'avoid ferries'}
+                        title={"avoid ferries"}
                         enabled={this.state.includeFerries}
                         onPress={() => this.handleFerries()}
                       />
@@ -595,24 +598,24 @@ class Map extends React.Component<MapProps, any> {
             <ButtonContainer>
               <VehicleButtonContainer>
                 <VehicleButton
-                  icon={'car'}
+                  icon={"car"}
                   onPress={() => this.handleModeDriving()}
-                  active={this.state.mode === 'DRIVING' ? true : false}
+                  active={this.state.mode === "DRIVING" ? true : false}
                 />
                 <VehicleButton
-                  icon={'bike'}
+                  icon={"bike"}
                   onPress={() => this.handleModeBicycling()}
-                  active={this.state.mode === 'BICYCLING' ? true : false}
+                  active={this.state.mode === "BICYCLING" ? true : false}
                 />
                 <VehicleButton
-                  icon={'walking'}
+                  icon={"walking"}
                   onPress={() => this.handleModeWalking()}
-                  active={this.state.mode === 'WALKING' ? true : false}
+                  active={this.state.mode === "WALKING" ? true : false}
                 />
                 <VehicleButton
-                  icon={'public'}
+                  icon={"public"}
                   onPress={() => this.handleModeTransit()}
-                  active={this.state.mode === 'TRANSIT' ? true : false}
+                  active={this.state.mode === "TRANSIT" ? true : false}
                 />
               </VehicleButtonContainer>
 
@@ -621,7 +624,7 @@ class Map extends React.Component<MapProps, any> {
                   <BuildButton
                     onClick={() => {
                       if (!this.state.builded)
-                        this.routeD(this.props.response.token)
+                        this.routeD(this.props.response.token);
                     }}
                   >
                     Build
@@ -645,14 +648,14 @@ class Map extends React.Component<MapProps, any> {
                 </ClearButton>
                 <LocationButton
                   onClick={() => {
-                    if (this.state.location) userLocationFlag = false
-                    this.setState({ location: !this.state.location })
+                    if (this.state.location) userLocationFlag = false;
+                    this.setState({ location: !this.state.location });
                   }}
                 >
                   <img
                     width={25}
                     src={this.state.location ? LocationOn : LocationOff}
-                    alt={''}
+                    alt={""}
                   ></img>
                 </LocationButton>
               </ControlButtonContainer>
@@ -668,37 +671,37 @@ class Map extends React.Component<MapProps, any> {
                 <SearchInput
                   value={this.state.firstSearchValue}
                   onValueChange={this.onValueChange}
-                  title={'Enter the point'}
-                  icon={'first'}
+                  title={"Enter the point"}
+                  icon={"first"}
                 />
                 <SearchInput
                   value=""
                   onValueChange={() => {}}
-                  title={'Enter the point'}
-                  icon={'second'}
+                  title={"Enter the point"}
+                  icon={"second"}
                 />
               </InputContainer>
               <ButtonContainer>
                 <MobileVehicleButtonContainer>
                   <VehicleButton
-                    icon={'car'}
+                    icon={"car"}
                     onPress={() => this.handleModeDriving()}
-                    active={this.state.mode === 'DRIVING' ? true : false}
+                    active={this.state.mode === "DRIVING" ? true : false}
                   />
                   <VehicleButton
-                    icon={'bike'}
+                    icon={"bike"}
                     onPress={() => this.handleModeBicycling()}
-                    active={this.state.mode === 'BICYCLING' ? true : false}
+                    active={this.state.mode === "BICYCLING" ? true : false}
                   />
                   <VehicleButton
-                    icon={'walking'}
+                    icon={"walking"}
                     onPress={() => this.handleModeWalking()}
-                    active={this.state.mode === 'WALKING' ? true : false}
+                    active={this.state.mode === "WALKING" ? true : false}
                   />
                   <VehicleButton
-                    icon={'public'}
+                    icon={"public"}
                     onPress={() => this.handleModeTransit()}
-                    active={this.state.mode === 'TRANSIT' ? true : false}
+                    active={this.state.mode === "TRANSIT" ? true : false}
                   />
                 </MobileVehicleButtonContainer>
 
@@ -707,7 +710,7 @@ class Map extends React.Component<MapProps, any> {
                     <BuildButton
                       onClick={() => {
                         if (!this.state.builded)
-                          this.routeD(this.props.response.token)
+                          this.routeD(this.props.response.token);
                       }}
                     >
                       Build
@@ -728,14 +731,14 @@ class Map extends React.Component<MapProps, any> {
                   </SettingsButton>
                   <LocationButton
                     onClick={() => {
-                      if (this.state.location) userLocationFlag = false
-                      this.setState({ location: !this.state.location })
+                      if (this.state.location) userLocationFlag = false;
+                      this.setState({ location: !this.state.location });
                     }}
                   >
                     <img
                       width={25}
                       src={this.state.location ? LocationOn : LocationOff}
-                      alt={''}
+                      alt={""}
                     ></img>
                   </LocationButton>
                 </MobileControlButtonContainer>
@@ -743,17 +746,17 @@ class Map extends React.Component<MapProps, any> {
               {this.state.settingsMenuOpened ? (
                 <MobileAvoidContainer>
                   <AvoidSwitch
-                    title={'avoid tolls'}
+                    title={"avoid tolls"}
                     enabled={this.state.includeTolls}
                     onPress={() => this.handleTolls()}
                   />
                   <AvoidSwitch
-                    title={'avoid highways'}
+                    title={"avoid highways"}
                     enabled={this.state.includeHighways}
                     onPress={() => this.handleHighways()}
                   />
                   <AvoidSwitch
-                    title={'avoid ferries'}
+                    title={"avoid ferries"}
                     enabled={this.state.includeFerries}
                     onPress={() => this.handleFerries()}
                   />
@@ -783,7 +786,7 @@ class Map extends React.Component<MapProps, any> {
           scrollWheelZoom={true}
           zoomControl={false}
           whenCreated={(map) => {
-            map.on('click', this.addMarker)
+            map.on("click", this.addMarker);
           }}
         >
           <LayersControl position="bottomright">
@@ -837,11 +840,11 @@ class Map extends React.Component<MapProps, any> {
           <ZoomControl position="bottomright" />
         </MapContainer>
       </div>
-    )
+    );
   }
 }
 
-export default Map
+export default Map;
 
 const Container = styled.div`
   display: flex;
@@ -850,7 +853,7 @@ const Container = styled.div`
   position: absolute;
   top: 30px;
   left: 30px;
-`
+`;
 
 const MobileContainer = styled.div`
   display: flex;
@@ -859,24 +862,24 @@ const MobileContainer = styled.div`
   z-index: 1000;
   position: absolute;
   top: 20px;
-`
+`;
 
 const Sidebar = styled.div`
   flex: 0.05;
-`
+`;
 
 const MainContainer = styled.div`
   flex: 0.9;
-`
+`;
 
 const InputContainer = styled.div`
   flex: 1;
   margin-right: 7.5px;
-`
+`;
 
 const ButtonContainer = styled.div`
   flex: 1;
-`
+`;
 
 const VehicleButtonContainer = styled.div`
   display: flex;
@@ -885,7 +888,7 @@ const VehicleButtonContainer = styled.div`
   flex-direction: row;
   margin-bottom: 15px;
   justify-content: space-between;
-`
+`;
 
 const MobileVehicleButtonContainer = styled.div`
   display: flex;
@@ -894,7 +897,7 @@ const MobileVehicleButtonContainer = styled.div`
   flex-direction: row;
   margin-bottom: 15px;
   justify-content: space-between;
-`
+`;
 
 const ControlButtonContainer = styled.div`
   display: flex;
@@ -903,7 +906,7 @@ const ControlButtonContainer = styled.div`
   flex-direction: row;
   margin-bottom: 15px;
   justify-content: space-between;
-`
+`;
 
 const MobileControlButtonContainer = styled.div`
   display: flex;
@@ -912,7 +915,7 @@ const MobileControlButtonContainer = styled.div`
   flex-direction: row;
   margin-bottom: 15px;
   justify-content: space-between;
-`
+`;
 
 const SettingsButton = styled.button`
   height: 50px;
@@ -935,9 +938,9 @@ const SettingsButton = styled.button`
     background: #0097c9;
     cursor: pointer;
   }
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-`
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+`;
 
 const ClearButton = styled.button`
   height: 50px;
@@ -960,9 +963,9 @@ const ClearButton = styled.button`
     background: #a83a45;
     cursor: pointer;
   }
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-`
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+`;
 
 const LogoutButton = styled.button`
   height: 50px;
@@ -985,9 +988,9 @@ const LogoutButton = styled.button`
     background: #a83a45;
     cursor: pointer;
   }
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-`
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+`;
 
 const LocationButton = styled.button`
   height: 50px;
@@ -1008,7 +1011,7 @@ const LocationButton = styled.button`
     background: rgba(200, 245, 200, 0.9);
     cursor: pointer;
   }
-`
+`;
 
 const BuildButton = styled.button`
   height: 50px;
@@ -1031,9 +1034,9 @@ const BuildButton = styled.button`
     background: #609c48;
     cursor: pointer;
   }
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-`
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+`;
 
 const AvoidContainer = styled.div`
   display: flex;
@@ -1044,7 +1047,7 @@ const AvoidContainer = styled.div`
   border-radius: 12px;
   background: rgba(245, 255, 245, 0.9);
   margin-bottom: 15px;
-`
+`;
 
 const MobileAvoidContainer = styled.div`
   display: flex;
@@ -1056,7 +1059,7 @@ const MobileAvoidContainer = styled.div`
   border-radius: 12px;
   background: rgba(245, 255, 245, 0.9);
   margin-bottom: 15px;
-`
+`;
 
 const LoadingContainer = styled.div`
   position: absolute;
@@ -1067,7 +1070,7 @@ const LoadingContainer = styled.div`
   background-color: white;
   opacity: 0.5;
   z-index: 1000;
-`
+`;
 
 const LoaderWrapper = styled.div`
   position: absolute;
@@ -1079,7 +1082,7 @@ const LoaderWrapper = styled.div`
   width: 100%;
   height: 100vh;
   z-index: 1001;
-`
+`;
 
 const SwitchSetting = styled.button`
   flex: 0.5;
@@ -1090,13 +1093,13 @@ const SwitchSetting = styled.button`
   font-size: 20px;
   cursor: pointer;
   font-weight: 600;
-`
+`;
 
 const SwitchSettingContainer = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-`
+`;
 
 const FriendsTooltop = styled(Tooltip)`
   padding-bottom: 5px;
@@ -1107,7 +1110,7 @@ const FriendsTooltop = styled(Tooltip)`
   border: 1px solid rgba(245, 255, 245, 1);
   border-radius: 10px;
   opacity: 1;
-`
+`;
 
 const UserTooltop = styled(Tooltip)`
   padding-bottom: 5px;
@@ -1118,7 +1121,7 @@ const UserTooltop = styled(Tooltip)`
   border: 1px solid rgba(245, 255, 245, 1);
   border-radius: 10px;
   opacity: 1;
-`
+`;
 
 const CenterPointTooltop = styled(Tooltip)`
   padding-bottom: 5px;
@@ -1129,4 +1132,4 @@ const CenterPointTooltop = styled(Tooltip)`
   border: 1px solid rgba(245, 255, 245, 1);
   border-radius: 10px;
   opacity: 1;
-`
+`;
