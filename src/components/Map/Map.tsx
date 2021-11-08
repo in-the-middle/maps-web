@@ -20,6 +20,8 @@ import Loader from "react-loader-spinner";
 import MediaQuery from "react-responsive";
 import fetchIntercept from "fetch-intercept";
 
+import jwt_decode from "jwt-decode";
+
 import axios from "axios";
 
 import { DefaultApi } from "../../mapsApi/api";
@@ -45,7 +47,7 @@ import MyInfo from "components/Map/Interface";
 import { friends } from "mocks/friends";
 
 import styled from "styled-components";
-import { LocationDTO } from "authServiceApi";
+import { LocationDTO, RefreshTokenDTO } from "authServiceApi";
 
 declare global {
   interface Window {
@@ -118,6 +120,9 @@ interface MapProps {
   handleRefreshToken: any;
   removeRefreshToken: any;
   response: any;
+  setUser: any;
+  setResponse: any;
+  cookies: any;
 }
 
 interface RouteProps {
@@ -130,10 +135,13 @@ var locationShare = [] as any;
 function LocationShare(props: any) {
   const map = useMap();
   useEffect(() => {
+    /* const interval = setInterval(() => { */
     map.locate().on("locationfound", function (e) {
       locationShare = e.latlng;
       console.log(locationShare);
     });
+    /* }, 5000); */
+    /* return () => clearInterval(interval); */
   }, []);
   return <div></div>;
 }
@@ -203,27 +211,42 @@ class Map extends React.Component<MapProps, any> {
   }
 
   async componentDidMount() {
-    const response = await authService.getFriendList({
-      queryParams: {
+    const interval = setInterval(async () => {
+      const response = await authService.getFriendList({
+        queryParams: {
+          id: this.props.user.userId,
+        },
+      });
+
+      const request = {
         id: this.props.user.userId,
-      },
-    });
+        lat: locationShare.lat,
+        lon: locationShare.lng,
+      } as LocationDTO;
 
-    console.log(locationShare);
+      const locResponse = await authService.saveLocation({
+        locationDTO: request,
+      });
 
-    const request = {
-      id: this.props.user.userId,
-      lat: locationShare.lat,
-      lon: locationShare.lng,
-    } as LocationDTO;
+      this.setState({ friends: response });
+    }, 5000);
 
-    const locResponse = await authService.saveLocation({
-      locationDTO: request,
-    });
-    console.log(locResponse);
+    /*  const interval2 = setInterval(async () => {
+      const refreshTokenDTO = {
+        token: this.props.cookies.refreshToken,
+      } as RefreshTokenDTO;
 
-    this.setState({ friends: response });
-    console.log(locationShare);
+      if (refreshTokenDTO.token) {
+        try {
+          const response = await authService.refreshToken({
+            refreshTokenDTO: refreshTokenDTO,
+          });
+          console.log(response);
+          this.props.setUser(jwt_decode(response.token as any));
+          this.props.setResponse(response);
+        } catch (e: any) {}
+      }
+    }, 290000); */
   }
 
   handleLogout() {

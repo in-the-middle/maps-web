@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import authService from 'components/apiDeclaration/apiDeclaration'
-import styled from 'styled-components'
-import ReactList from 'react-list'
+import React, { useState, useEffect } from "react";
+import authService from "components/apiDeclaration/apiDeclaration";
+import styled from "styled-components";
+import ReactList from "react-list";
 
 export default function FriendsPopup(props: any) {
-  const [searched, setSearched] = useState('')
+  const [searched, setSearched] = useState("");
   const {
     user,
     friends,
@@ -12,39 +12,40 @@ export default function FriendsPopup(props: any) {
     checkDisplayedFriend,
     addFriendMarker,
     addedFriends,
-  } = props
+  } = props;
 
   useEffect(() => {
-    console.log(user)
-    console.log(addedFriends)
-  }, [displayedFriends])
+    console.log(user);
+    console.log(addedFriends);
+  }, [displayedFriends]);
 
   const handleCheck = (event: any) => {
-    checkDisplayedFriend(event)
-  }
+    checkDisplayedFriend(event);
+  };
 
   const handleAdd = (event: any) => {
-    checkDisplayedFriend(event)
-    console.log('test')
-  }
+    checkDisplayedFriend(event);
+    console.log("test");
+  };
 
   const Item = (index: any, key: any) => {
-    console.log(friends[index].friendStatus)
+    console.log(friends[index]);
     if (
-      friends[index].locationPermission === 'NOT_ALLOWED' &&
-      friends[index].friendStatus === 'INVITED_BY_ME' &&
-      friends[index].friendStatus === 'INVITED_BY_HIM'
+      friends[index].locationPermission === "NOT_ALLOWED" ||
+      friends[index].friendStatus === "INVITED_BY_ME" ||
+      friends[index].friendStatus === "INVITED_BY_HIM" ||
+      friends[index].lat === null ||
+      friends[index].lon === null
     )
-      return <div></div>
+      return <div></div>;
 
     const selected = displayedFriends.find(
-      (friend: any) => friend.username === friends[index].username,
-    )
-    console.log(selected)
+      (friend: any) => friend.username === friends[index].username
+    );
     if (
       searched &&
-      friends[index].friendStatus === 'FRIENDS' &&
-      friends[index].locationPermission === 'ALLOWED'
+      friends[index].friendStatus === "FRIENDS" &&
+      friends[index].locationPermission === "ALLOWED"
     ) {
       if (
         friends[index].username.toLowerCase().includes(searched.toLowerCase())
@@ -56,11 +57,11 @@ export default function FriendsPopup(props: any) {
             selected={selected}
             key={key}
           />
-        )
-      return <div></div>
+        );
+      return <div></div>;
     } else if (
-      friends[index].friendStatus === 'FRIENDS' &&
-      friends[index].locationPermission === 'ALLOWED'
+      friends[index].friendStatus === "FRIENDS" &&
+      friends[index].locationPermission === "ALLOWED"
     )
       return (
         <Friend
@@ -69,9 +70,9 @@ export default function FriendsPopup(props: any) {
           selected={selected}
           key={key}
         />
-      )
-    return <div></div>
-  }
+      );
+    return <div></div>;
+  };
 
   return (
     <FriendsContainer>
@@ -81,7 +82,7 @@ export default function FriendsPopup(props: any) {
       />
       <div
         style={{
-          overflow: 'auto',
+          overflow: "auto",
           maxHeight: 110,
           marginTop: 10,
         }}
@@ -89,22 +90,22 @@ export default function FriendsPopup(props: any) {
         <ReactList itemRenderer={Item} length={friends.length} />
       </div>
     </FriendsContainer>
-  )
+  );
 }
 
 const Friend = (props: any) => {
-  const { username, handleCheck, selected } = props
+  const { username, handleCheck, selected } = props;
   return (
     <FriendTitle active={!!selected} onClick={() => handleCheck(username)}>
-      {'@'}
+      {"@"}
       {username}
     </FriendTitle>
-  )
-}
+  );
+};
 
 type FriendsTitleProps = {
-  active: boolean
-}
+  active: boolean;
+};
 
 const FriendsContainer = styled.div`
   height: 150px;
@@ -112,7 +113,7 @@ const FriendsContainer = styled.div`
   padding: 10px;
   background-color: rgba(245, 255, 245, 0.9);
   border-radius: 10px;
-`
+`;
 
 const FriendsInput = styled.input`
   width: 80%;
@@ -125,7 +126,7 @@ const FriendsInput = styled.input`
   :focus {
     border-color: #73b15b;
   }
-`
+`;
 
 const FriendTitle = styled.p<FriendsTitleProps>`
   width: 90%;
@@ -138,8 +139,8 @@ const FriendTitle = styled.p<FriendsTitleProps>`
   cursor: pointer;
   border: 1px solid rgba(245, 255, 245, 0.9);
   background-color: ${(props) =>
-    props.active ? '#c9ecbc' : 'rgba(245, 255, 245, 0.9)'};
+    props.active ? "#c9ecbc" : "rgba(245, 255, 245, 0.9)"};
   :hover {
     border: 1px solid #c9ecbc;
   }
-`
+`;

@@ -1,23 +1,23 @@
-import React, { useState } from 'react'
-import { useHistory } from 'react-router-dom'
-import jwt_decode from 'jwt-decode'
-import authService from 'components/apiDeclaration/apiDeclaration'
-import { IconButton, InputAdornment, TextField } from '@material-ui/core'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import Visibility from '@material-ui/icons/Visibility'
-import VisibilityOff from '@material-ui/icons/VisibilityOff'
+import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
+import jwt_decode from "jwt-decode";
+import authService from "components/apiDeclaration/apiDeclaration";
+import { IconButton, InputAdornment, TextField } from "@material-ui/core";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
-import { GoogleLogin } from 'react-google-login'
-import { GoogleAuthDTO } from 'authServiceApi'
+import { GoogleLogin } from "react-google-login";
+import { GoogleAuthDTO } from "authServiceApi";
 
-import styled from 'styled-components'
+import styled from "styled-components";
 
-import { AuthenticationDTO } from '../../authServiceApi/model'
-import MediaButton from 'components/MediaButton/MediaButton'
+import { AuthenticationDTO } from "../../authServiceApi/model";
+import MediaButton from "components/MediaButton/MediaButton";
 
-import Apple from 'assets/icons/Interface/apple.svg'
-import Google from 'assets/icons/Interface/google.svg'
-import Facebook from 'assets/icons/Interface/facebook.svg'
+import Apple from "assets/icons/Interface/apple.svg";
+import Google from "assets/icons/Interface/google.svg";
+import Facebook from "assets/icons/Interface/facebook.svg";
 
 export default function Login({
   handleUser,
@@ -26,50 +26,51 @@ export default function Login({
   res,
   usernamee,
 }: any) {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const history = useHistory()
+  const history = useHistory();
 
   async function handleClick(username: any, password: any) {
     const user = {
       username: username,
       encryptedPassword: password,
-    } as AuthenticationDTO
-    var response = null
+    } as AuthenticationDTO;
+    var response = null;
     try {
-      response = await authService.authenticate({ authenticationDTO: user })
-      localStorage.setItem('accessToken', response.accessToken as any)
-      localStorage.setItem('refreshToken', response.refreshToken as any)
-      handleResponse(response)
-      handleRefreshToken(response.refreshToken?.token)
-      handleUser(jwt_decode(response.accessToken?.token as any))
-    } catch (e) {
-      console.log(e)
+      response = await authService.authenticate({ authenticationDTO: user });
+      localStorage.setItem("accessToken", response.accessToken as any);
+      localStorage.setItem("refreshToken", response.refreshToken as any);
+      handleResponse(response);
+      handleRefreshToken(response.refreshToken?.token);
+      handleUser(jwt_decode(response.accessToken?.token as any));
+    } catch (e: any) {
+      console.log(e.response);
+      if (e.response.status === 401) alert("Invalid credentials");
     }
-    if (response) history.push('/')
+    if (response) history.push("/");
 
-    console.log(response)
+    console.log(response);
   }
 
   async function responseGoogle(response: any) {
     const request = {
       tokenId: response.tokenId,
-    } as GoogleAuthDTO
+    } as GoogleAuthDTO;
 
-    var authResponse = null
+    var authResponse = null;
     try {
       authResponse = await authService.authenticateWithGoogle({
         googleAuthDTO: request,
-      })
-      handleResponse(authResponse)
-      handleUser(jwt_decode(authResponse.accessToken?.token as any))
-      handleRefreshToken(authResponse.refreshToken?.token)
-    } catch (e) {
-      console.log(e)
+      });
+      handleResponse(authResponse);
+      handleUser(jwt_decode(authResponse.accessToken?.token as any));
+      handleRefreshToken(authResponse.refreshToken?.token);
+    } catch (e: any) {
+      if (e.response.status === 409) alert("User already registered");
     }
-    if (authResponse) history.push('/')
+    if (authResponse) history.push("/");
   }
 
   return (
@@ -79,8 +80,7 @@ export default function Login({
           clientId="75898054002-q3s2968b0374o5jmke2bt2tupacocgjk.apps.googleusercontent.com"
           buttonText="Log in with Google"
           onSuccess={responseGoogle}
-          onFailure={responseGoogle}
-          cookiePolicy={'single_host_origin'}
+          cookiePolicy={"single_host_origin"}
         />
 
         <CustomInput
@@ -92,16 +92,16 @@ export default function Login({
         ></CustomInput>
         <OutlinedInput
           id="outlined-adornment-password"
-          type={showPassword ? 'text' : 'password'}
+          type={showPassword ? "text" : "password"}
           value={password}
           style={{
-            width: '100%',
+            width: "100%",
             marginTop: 20,
             marginBottom: 20,
-            color: '#000000',
-            outline: 'none',
+            color: "#000000",
+            outline: "none",
           }}
-          classes={{ notchedOutline: 'visible' }}
+          classes={{ notchedOutline: "visible" }}
           onChange={(e: any) => setPassword(e.target.value)}
           endAdornment={
             <InputAdornment position="end">
@@ -119,16 +119,16 @@ export default function Login({
           login
         </CustomButton>
         <Info>
-          or <Link onClick={() => history.push('/signup')}>sign up</Link>
+          or <Link onClick={() => history.push("/signup")}>sign up</Link>
         </Info>
         <Info>
-          <Link onClick={() => history.push('/reset-password')}>
+          <Link onClick={() => history.push("/reset-password")}>
             reset password
           </Link>
         </Info>
       </Content>
     </Container>
-  )
+  );
 }
 
 const Container = styled.div`
@@ -144,12 +144,12 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-`
+`;
 
 const CustomInput = styled(TextField)`
   width: 100%;
   margin-bottom: 20px;
-`
+`;
 
 const CustomButton = styled.button`
   border: 2px solid rgba(75, 128, 207, 1);
@@ -161,37 +161,37 @@ const CustomButton = styled.button`
   cursor: pointer;
   font-size: 20px;
   line-height: 24px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
 
   :hover {
     background: rgba(75, 128, 207, 0.5);
   }
-`
+`;
 
 const Content = styled.div`
   width: 20%;
   display: flex;
   flex-direction: column;
   align-items: center;
-`
+`;
 
 const Info = styled.p`
   font-size: 18px;
   line-height: 24px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
-`
+`;
 
 const Link = styled.strong`
   cursor: pointer;
   font-size: 18px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
   color: rgba(75, 128, 207, 1);
-`
+`;
 
 const CustomGoogleLogin = styled(GoogleLogin)`
   width: 100%;
   margin-bottom: 20px;
-`
+`;

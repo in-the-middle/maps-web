@@ -1,38 +1,43 @@
-import React, { useState, useEffect } from 'react'
-import authService from 'components/apiDeclaration/apiDeclaration'
-import styled from 'styled-components'
-import ReactList from 'react-list'
-import { LocationPermissionDTO } from '../../authServiceApi/model'
+import React, { useState, useEffect } from "react";
+import authService from "components/apiDeclaration/apiDeclaration";
+import styled from "styled-components";
+import ReactList from "react-list";
+import { LocationPermissionDTO } from "../../authServiceApi/model";
 
 type OptionProps = {
-  active: boolean
-}
+  active: boolean;
+};
+
+type NotificationProps = {
+  status: "success" | "failure";
+};
 
 export default function FriendSettings(props: any) {
-  const [friendsList, setFriendsList] = useState<any>(null)
-  const [searched, setSearched] = useState('')
-  const [activeSection, setActiveSection] = useState('friends')
-  const [loaded, setLoaded] = useState(false)
-  const [friendlistChanged, setfriendlistChanged] = useState(false)
+  const [friendsList, setFriendsList] = useState<any>(null);
+  const [searched, setSearched] = useState("");
+  const [activeSection, setActiveSection] = useState("friends");
+  const [loaded, setLoaded] = useState(false);
+  const [friendlistChanged, setfriendlistChanged] = useState(false);
+  const [sendedRequest, setSendedRequest] = useState("not sended");
 
-  const { user, changeFriendsList } = props
+  const { user, changeFriendsList } = props;
 
   useEffect(() => {
-    ;(async function () {
+    (async function () {
       try {
         const response = await authService.getFriendList({
           queryParams: {
             id: user.userId,
           },
-        })
-        setFriendsList(response)
-        changeFriendsList(response)
-        setLoaded(true)
+        });
+        setFriendsList(response);
+        changeFriendsList(response);
+        setLoaded(true);
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
-    })()
-  }, [friendlistChanged])
+    })();
+  }, [friendlistChanged]);
 
   async function addFriend(username: any) {
     try {
@@ -41,11 +46,13 @@ export default function FriendSettings(props: any) {
           id: user.userId,
           friendUsername: username,
         },
-      }
-      const response = await authService.addFriend(request)
-      setfriendlistChanged(!friendlistChanged)
-    } catch (e) {
-      console.log(e)
+      };
+      const response = await authService.addFriend(request);
+      setfriendlistChanged(!friendlistChanged);
+      setSendedRequest("success");
+    } catch (e: any) {
+      console.log(e.response);
+      setSendedRequest("failed");
     }
   }
 
@@ -56,44 +63,44 @@ export default function FriendSettings(props: any) {
           id: user.userId,
           friendUsername: friendUsername,
         },
-      }
-      const response = await authService.deleteFriend(request)
+      };
+      const response = await authService.deleteFriend(request);
 
-      setfriendlistChanged(!friendlistChanged)
-      console.log(response)
+      setfriendlistChanged(!friendlistChanged);
+      console.log(response);
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }
 
   async function changeLocationPermission(
     id: string,
     locationPermission: LocationPermissionDTO,
-    username: string,
+    username: string
   ) {
     try {
       const permission =
-        locationPermission === 'ALLOWED'
-          ? ('NOT_ALLOWED' as LocationPermissionDTO)
-          : ('ALLOWED' as LocationPermissionDTO)
+        locationPermission === "ALLOWED"
+          ? ("NOT_ALLOWED" as LocationPermissionDTO)
+          : ("ALLOWED" as LocationPermissionDTO);
       const request = {
         queryParams: {
           id: id,
           friendUsername: username,
           locationPermission: permission,
         },
-      }
-      const response = await authService.changeLocationPermission(request)
-      setfriendlistChanged(!friendlistChanged)
-      console.log(response)
+      };
+      const response = await authService.changeLocationPermission(request);
+      setfriendlistChanged(!friendlistChanged);
+      console.log(response);
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }
 
   const FriendItem = (index: any, key: any) => {
     return friendsList[index] &&
-      friendsList[index].friendStatus === 'FRIENDS' ? (
+      friendsList[index].friendStatus === "FRIENDS" ? (
       <FriendComponent
         key={key}
         username={friendsList[index].username}
@@ -102,33 +109,33 @@ export default function FriendSettings(props: any) {
       />
     ) : (
       <div key={key}></div>
-    )
-  }
+    );
+  };
 
   const RequestItem = (index: any, key: any) => {
     return friendsList[index] &&
-      friendsList[index].friendStatus === 'INVITED_BY_ME' ? (
+      friendsList[index].friendStatus === "INVITED_BY_ME" ? (
       <RequestComponent key={key} username={friendsList[index].username} />
     ) : (
       <div key={key}></div>
-    )
-  }
+    );
+  };
 
   const ResponseItem = (index: any, key: any) => {
     return friendsList[index] &&
-      friendsList[index].friendStatus === 'INVITED_BY_HIM' ? (
+      friendsList[index].friendStatus === "INVITED_BY_HIM" ? (
       <InvitationComponent key={key} username={friendsList[index].username} />
     ) : (
       <div key={key}></div>
-    )
-  }
+    );
+  };
 
   const FriendComponent = (props: any) => {
-    const { username, locationPermission, id } = props
+    const { username, locationPermission, id } = props;
     return (
       <FriendsContainer>
         <FriendTitle>
-          {'@'}
+          {"@"}
           {username}
         </FriendTitle>
         <ButtonContainer>
@@ -137,37 +144,37 @@ export default function FriendSettings(props: any) {
               changeLocationPermission(id, locationPermission, username)
             }
           >
-            {locationPermission === 'ALLOWED' ? "don't share" : 'share'}
+            {locationPermission === "ALLOWED" ? "don't share" : "share"}
           </ShareLocationButton>
           <DeleteFriendButton onClick={() => deleteFriend(username)}>
             delete
           </DeleteFriendButton>
         </ButtonContainer>
       </FriendsContainer>
-    )
-  }
+    );
+  };
 
   const RequestComponent = (props: any) => {
-    const { username } = props
+    const { username } = props;
     return (
       <RequestContainer>
         <RequestTitle>
-          {'@'}
+          {"@"}
           {username}
         </RequestTitle>
         <DeleteFriendButton onClick={() => deleteFriend(username)}>
           delete
         </DeleteFriendButton>
       </RequestContainer>
-    )
-  }
+    );
+  };
 
   const InvitationComponent = (props: any) => {
-    const { username } = props
+    const { username } = props;
     return (
       <FriendsContainer>
         <FriendTitle>
-          {'@'}
+          {"@"}
           {username}
         </FriendTitle>
         <ButtonContainer>
@@ -179,33 +186,33 @@ export default function FriendSettings(props: any) {
           </DeleteFriendButton>
         </ButtonContainer>
       </FriendsContainer>
-    )
-  }
+    );
+  };
 
   return (
     <div>
       <SelectContainer>
         <SelectOption
-          active={activeSection === 'friends'}
-          onClick={() => setActiveSection('friends')}
+          active={activeSection === "friends"}
+          onClick={() => setActiveSection("friends")}
         >
           friends
         </SelectOption>
         <SelectOption
-          active={activeSection === 'requests'}
-          onClick={() => setActiveSection('requests')}
+          active={activeSection === "requests"}
+          onClick={() => setActiveSection("requests")}
         >
           requests
         </SelectOption>
         <SelectOption
-          active={activeSection === 'invitations'}
-          onClick={() => setActiveSection('invitations')}
+          active={activeSection === "invitations"}
+          onClick={() => setActiveSection("invitations")}
         >
           invitations
         </SelectOption>
       </SelectContainer>
 
-      {activeSection === 'friends' ? (
+      {activeSection === "friends" ? (
         <div>
           <InputContainer>
             <FriendsInput
@@ -222,16 +229,21 @@ export default function FriendSettings(props: any) {
                 length={friendsList.length}
               />
             ) : (
-              'Loading...'
+              "Loading..."
             )}
           </ListContainer>
+          {sendedRequest === "success" ? (
+            <Notification status="success">Request sended</Notification>
+          ) : sendedRequest === "failed" ? (
+            <Notification status="failure">User doesn't exist</Notification>
+          ) : null}
         </div>
-      ) : activeSection === 'requests' ? (
+      ) : activeSection === "requests" ? (
         <ListContainer>
           {loaded ? (
             <ReactList itemRenderer={RequestItem} length={friendsList.length} />
           ) : (
-            'Loading...'
+            "Loading..."
           )}
         </ListContainer>
       ) : (
@@ -242,12 +254,12 @@ export default function FriendSettings(props: any) {
               length={friendsList.length}
             />
           ) : (
-            'Loading...'
+            "Loading..."
           )}
         </ListContainer>
       )}
     </div>
-  )
+  );
 }
 
 const FriendsInput = styled.input`
@@ -261,14 +273,14 @@ const FriendsInput = styled.input`
   :focus {
     border-color: #73b15b;
   }
-`
+`;
 
 const InputContainer = styled.div`
   margin: 0 20px 0 20px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-`
+`;
 
 const AddButton = styled.button`
   flex: 0.3;
@@ -285,13 +297,13 @@ const AddButton = styled.button`
     background: #609c48;
     cursor: pointer;
   }
-`
+`;
 
 const SelectContainer = styled.div`
   display: flex;
   flex-direction: row;
   margin-bottom: 10px;
-`
+`;
 
 const SelectOption = styled.div<OptionProps>`
   display: flex;
@@ -300,24 +312,24 @@ const SelectOption = styled.div<OptionProps>`
   flex: 0.33;
   height: 30px;
   border-radius: 6px;
-  color: ${(props) => (props.active ? 'white' : 'black')};
+  color: ${(props) => (props.active ? "white" : "black")};
   font-weight: 500;
   font-size: 20px;
   background-color: ${(props) =>
-    props.active ? '#609c48' : 'rgba(245, 255, 245, 0.9)'};
+    props.active ? "#609c48" : "rgba(245, 255, 245, 0.9)"};
 
   :hover {
     background: #609c48;
     cursor: pointer;
     color: white;
   }
-`
+`;
 
 const ListContainer = styled.div`
   margin: 10px;
   max-height: 110px;
   overflow: auto;
-`
+`;
 
 const FriendTitle = styled.p`
   flex: 0.45;
@@ -326,8 +338,8 @@ const FriendTitle = styled.p`
   line-height: 10px;
   padding: 5px;
   margin: 5px 0 5px 0;
-  background-color: 'rgba(245, 255, 245, 0.9)';
-`
+  background-color: "rgba(245, 255, 245, 0.9)";
+`;
 
 const FriendsContainer = styled.div`
   border-bottom: 1px solid black;
@@ -336,7 +348,7 @@ const FriendsContainer = styled.div`
   flex-direction: row;
   justify-content: space-between;
   height: 30px;
-`
+`;
 
 const RequestTitle = styled.p`
   flex: 0.3;
@@ -345,8 +357,8 @@ const RequestTitle = styled.p`
   line-height: 10px;
   padding: 5px;
   margin: 5px 0 5px 0;
-  background-color: 'rgba(245, 255, 245, 0.9)';
-`
+  background-color: "rgba(245, 255, 245, 0.9)";
+`;
 
 const RequestContainer = styled.div`
   border-bottom: 1px solid black;
@@ -355,7 +367,7 @@ const RequestContainer = styled.div`
   flex-direction: row;
   justify-content: space-between;
   height: 30px;
-`
+`;
 
 const DeleteFriendButton = styled.button`
   font-size: 18px;
@@ -369,7 +381,7 @@ const DeleteFriendButton = styled.button`
     cursor: pointer;
     color: #a83a45;
   }
-`
+`;
 
 const ShareLocationButton = styled.button`
   font-size: 18px;
@@ -383,7 +395,7 @@ const ShareLocationButton = styled.button`
     cursor: pointer;
     color: #0097c9;
   }
-`
+`;
 
 const ButtonContainer = styled.div`
   flex: 0.55;
@@ -391,4 +403,19 @@ const ButtonContainer = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-`
+`;
+
+const Notification = styled.div<NotificationProps>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px;
+  padding: 20px;
+  font-size: 18px;
+  font-weight: 400;
+  color: white;
+  border-radius: 10px;
+  background: ${(props) =>
+    props.status === "success" ? "#73b15b" : "#eb5160"};
+  height: 5px;
+`;

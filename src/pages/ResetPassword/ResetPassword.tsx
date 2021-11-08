@@ -1,47 +1,47 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 
-import authService from 'components/apiDeclaration/apiDeclaration'
-import { useHistory } from 'react-router'
+import authService from "components/apiDeclaration/apiDeclaration";
+import { useHistory } from "react-router";
 
 import {
   IconButton,
   InputAdornment,
   TextField,
   Button,
-} from '@material-ui/core'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import Visibility from '@material-ui/icons/Visibility'
-import VisibilityOff from '@material-ui/icons/VisibilityOff'
+} from "@material-ui/core";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
-import styled from 'styled-components'
+import styled from "styled-components";
 
 export default function ResetPassword() {
-  const [email, setEmail] = useState('')
-  const [code, setCode] = useState('')
-  const [codeSended, setCodeSended] = useState(false)
-  const [newPassword, setNewPassword] = useState('')
-  const [error, setError] = useState<any>(null)
-  const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [codeSended, setCodeSended] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [error, setError] = useState<any>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const history = useHistory()
+  const history = useHistory();
 
   async function sendCode(email: any) {
-    console.log(email)
-    var response = null
+    console.log(email);
+    var response = null;
     try {
       response = await authService.sendPasswordEmail({
         queryParams: {
           email: email,
         },
-      })
+      });
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
-    if (response) setCodeSended(true)
+    if (response) setCodeSended(true);
   }
 
   async function handleConfirm() {
-    var response = null
+    var response = null;
     try {
       response = await authService.resetPassword({
         queryParams: {
@@ -49,13 +49,13 @@ export default function ResetPassword() {
           emailCode: code,
           newPassword: newPassword,
         },
-      })
-      if (response === 'PASSWORD_CHANGED') history.push('/')
-      else setError(response)
+      });
+      if (response === "PASSWORD_CHANGED") history.push("/");
+      else setError(response);
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
-    console.log(response)
+    console.log(response);
   }
 
   return (
@@ -70,7 +70,7 @@ export default function ResetPassword() {
               style={{ marginBottom: 20 }}
               value={email}
               onChange={(e: any) => setEmail(e.target.value)}
-              onFocus={() => setEmail('')}
+              onFocus={() => setEmail("")}
             ></CustomInput>
             <CustomButton onClick={() => sendCode(email)}>
               send code
@@ -88,15 +88,15 @@ export default function ResetPassword() {
             ></CustomInput>
             <OutlinedInput
               id="outlined-adornment-password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               value={newPassword}
               style={{
-                width: '100%',
+                width: "100%",
                 marginBottom: 20,
-                color: '#000000',
-                outline: 'none',
+                color: "#000000",
+                outline: "none",
               }}
-              classes={{ notchedOutline: 'visible' }}
+              classes={{ notchedOutline: "visible" }}
               onChange={(e: any) => setNewPassword(e.target.value)}
               endAdornment={
                 <InputAdornment position="end">
@@ -113,14 +113,14 @@ export default function ResetPassword() {
             <CustomButton onClick={() => handleConfirm()}>confirm</CustomButton>
             {error ? (
               <ErrorMessage>
-                {error === 'WRONG_CODE' ? 'Wrong code' : 'Weak password'}
+                {error === "WRONG_CODE" ? "Wrong code" : "Weak password"}
               </ErrorMessage>
             ) : null}
           </div>
         )}
       </Content>
     </Container>
-  )
+  );
 }
 
 const Container = styled.div`
@@ -136,7 +136,7 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-`
+`;
 
 const CustomInput = styled(TextField)`
   width: 100%;
@@ -151,13 +151,13 @@ const CustomInput = styled(TextField)`
   padding: 0 15px 0 15px;
   font-size: 20px;
   line-height: 24px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 600;
 
   :focus {
     border: 3px solid black;
   }
-`
+`;
 
 const CustomButton = styled.button`
   border: 2px solid rgba(75, 128, 207, 1);
@@ -169,19 +169,25 @@ const CustomButton = styled.button`
   cursor: pointer;
   font-size: 20px;
   line-height: 24px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
 
   :hover {
     background: rgba(75, 128, 207, 0.5);
   }
-`
+`;
 
 const Content = styled.div`
   width: 20%;
   display: flex;
   flex-direction: column;
   align-items: center;
-`
+`;
 
-const ErrorMessage = styled.p``
+const ErrorMessage = styled.p`
+  cursor: pointer;
+  font-size: 24px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  color: #eb5160;
+`;

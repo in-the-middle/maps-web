@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
-import authService from 'components/apiDeclaration/apiDeclaration'
-import jwtDecode from 'jwt-decode'
+import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
+import authService from "components/apiDeclaration/apiDeclaration";
+import jwtDecode from "jwt-decode";
 
-import styled from 'styled-components'
+import styled from "styled-components";
 
 import {
   IconButton,
   InputAdornment,
   TextField,
   Button,
-} from '@material-ui/core'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import Visibility from '@material-ui/icons/Visibility'
-import VisibilityOff from '@material-ui/icons/VisibilityOff'
+} from "@material-ui/core";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
-import { UserDTO } from '../../authServiceApi/model'
-import MediaButton from 'components/MediaButton/MediaButton'
+import { UserDTO } from "../../authServiceApi/model";
+import MediaButton from "components/MediaButton/MediaButton";
 
-import { AuthenticationDTO } from '../../authServiceApi/model'
+import { AuthenticationDTO } from "../../authServiceApi/model";
 
-import Apple from 'assets/icons/Interface/apple.svg'
-import Google from 'assets/icons/Interface/google.svg'
-import Facebook from 'assets/icons/Interface/facebook.svg'
+import Apple from "assets/icons/Interface/apple.svg";
+import Google from "assets/icons/Interface/google.svg";
+import Facebook from "assets/icons/Interface/facebook.svg";
 
 export default function Signup({
   handleUser,
@@ -30,29 +30,29 @@ export default function Signup({
   res,
   usernamee,
 }: any) {
-  const [username, setUsername] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [password, setPassword] = useState('')
-  const [email, setEmail] = useState('')
-  const [code, setCode] = useState('')
-  const [userCreated, setUserCreated] = useState(false)
-  const [userID, setUserID] = useState('')
-  const [error, setError] = useState<any>(null)
-  const [showPassword, setShowPassword] = useState(false)
+  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [userCreated, setUserCreated] = useState(false);
+  const [userID, setUserID] = useState("");
+  const [error, setError] = useState<any>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const history = useHistory()
+  const history = useHistory();
 
   useEffect(() => {
-    console.log(userCreated)
-  }, [])
+    console.log(userCreated);
+  }, []);
 
   async function handleClick(
     username: string,
     firstName: string,
     lastName: string,
     email: string,
-    password: string,
+    password: string
   ) {
     const newUser = {
       username: username,
@@ -60,22 +60,22 @@ export default function Signup({
       lastName: lastName,
       email: email,
       encryptedPassword: password,
-    } as UserDTO
-    console.log(newUser)
+    } as UserDTO;
+    console.log(newUser);
     try {
-      const response = await authService.register({ userDTO: newUser })
-      console.log(response)
+      const response = await authService.register({ userDTO: newUser });
+      console.log(response);
       if (
-        response === 'EMAIL_ALREADY_EXISTS' ||
-        response === 'USERNAME_ALREADY_EXISTS' ||
-        response === 'WEAK_PASSWORD'
+        response === "EMAIL_ALREADY_EXISTS" ||
+        response === "USERNAME_ALREADY_EXISTS" ||
+        response === "WEAK_PASSWORD"
       ) {
-        setError(response)
-        return
+        setError(response);
+        return;
       }
-      if (response) setUserCreated(true)
+      if (response) setUserCreated(true);
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }
 
@@ -85,10 +85,10 @@ export default function Signup({
         queryParams: {
           id: userID,
         },
-      })
-      console.log(response)
+      });
+      console.log(response);
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }
 
@@ -96,30 +96,30 @@ export default function Signup({
     const user = {
       username: username,
       encryptedPassword: password,
-    } as AuthenticationDTO
-    var response = null
+    } as AuthenticationDTO;
+    var response = null;
     try {
-      response = await authService.authenticate({ authenticationDTO: user })
-      console.log(response)
+      response = await authService.authenticate({ authenticationDTO: user });
+      console.log(response);
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
-    const loggedUser: any = jwtDecode(response?.accessToken?.token as any)
-    console.log(loggedUser.userId)
-    setUserID(loggedUser.userId)
-    const userID: string | undefined = loggedUser.userId
-    console.log(code)
+    const loggedUser: any = jwtDecode(response?.accessToken?.token as any);
+    console.log(loggedUser.userId);
+    setUserID(loggedUser.userId);
+    const userID: string | undefined = loggedUser.userId;
+    console.log(code);
     try {
       response = await authService.verifyEmail({
         queryParams: {
           id: userID,
           emailCode: code,
         },
-      })
-      console.log(response)
-      if (response === 'VERIFIED') history.push('/login')
+      });
+      console.log(response);
+      if (response === "VERIFIED") history.push("/login");
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }
 
@@ -162,15 +162,15 @@ export default function Signup({
             ></CustomInput>
             <OutlinedInput
               id="outlined-adornment-password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               value={password}
               style={{
-                width: '100%',
+                width: "100%",
                 marginBottom: 20,
-                color: '#000000',
-                outline: 'none',
+                color: "#000000",
+                outline: "none",
               }}
-              classes={{ notchedOutline: 'visible' }}
+              classes={{ notchedOutline: "visible" }}
               onChange={(e: any) => setPassword(e.target.value)}
               endAdornment={
                 <InputAdornment position="end">
@@ -193,22 +193,26 @@ export default function Signup({
             </CustomButton>
 
             <Info>
-              or <Link onClick={() => history.push('/login')}>log in</Link>
+              or <Link onClick={() => history.push("/login")}>log in</Link>
             </Info>
             <TermsText>
               By continuing to use InTheMiddle, you agree to our&nbsp;
               <TermsLink href="/terms-and-conditions" target="_blank">
-                Terms of Service and Privacy Policy
+                Terms of Service
+              </TermsLink>
+              &nbsp;and&nbsp;
+              <TermsLink href="/privacy" target="_blank">
+                Privacy Policy
               </TermsLink>
             </TermsText>
 
             {error ? (
               <ErrorMessage>
-                {error.includes('EMAIL')
-                  ? 'Email already exists!'
-                  : error.includes('USERNAME')
-                  ? 'Username already exists!'
-                  : 'Weak password!'}
+                {error.includes("EMAIL")
+                  ? "Email already exists!"
+                  : error.includes("USERNAME")
+                  ? "Username already exists!"
+                  : "Weak password!"}
               </ErrorMessage>
             ) : null}
           </div>
@@ -221,7 +225,7 @@ export default function Signup({
               style={{ marginBottom: 20 }}
               value={code}
               onChange={(e: any) => setCode(e.target.value)}
-              onFocus={() => setCode('')}
+              onFocus={() => setCode("")}
             ></CustomInput>
 
             <CustomButton onClick={() => confirmEmail(code)}>ok</CustomButton>
@@ -232,7 +236,7 @@ export default function Signup({
         )}
       </Content>
     </Container>
-  )
+  );
 }
 
 const Container = styled.div`
@@ -248,7 +252,7 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-`
+`;
 
 const CustomInput = styled(TextField)`
   width: 100%;
@@ -263,13 +267,13 @@ const CustomInput = styled(TextField)`
   padding: 0 15px 0 15px;
   font-size: 20px;
   line-height: 24px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 600;
 
   :focus {
     border: 3px solid black;
   }
-`
+`;
 
 const CustomButton = styled.button`
   border: 2px solid rgba(75, 128, 207, 1);
@@ -281,55 +285,55 @@ const CustomButton = styled.button`
   cursor: pointer;
   font-size: 20px;
   line-height: 24px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
 
   :hover {
     background: rgba(75, 128, 207, 0.5);
   }
-`
+`;
 
 const Content = styled.div`
   width: 20%;
   display: flex;
   flex-direction: column;
   align-items: center;
-`
+`;
 
 const Info = styled.p`
   font-size: 18px;
   line-height: 24px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
-`
+`;
 
 const Link = styled.strong`
   cursor: pointer;
   font-size: 18px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
   color: rgba(75, 128, 207, 1);
-`
+`;
 
 const TermsText = styled.p`
   font-size: 15px;
   line-height: 24px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
-`
+`;
 
 const TermsLink = styled.a`
   cursor: pointer;
   font-size: 15px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 400;
   color: rgba(75, 128, 207, 1);
-`
+`;
 
 const ErrorMessage = styled.p`
   cursor: pointer;
   font-size: 24px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-weight: 600;
   color: #eb5160;
-`
+`;

@@ -1,5 +1,5 @@
-import React from 'react'
-import Map from 'components/Map/Map'
+import React from "react";
+import Map from "components/Map/Map";
 
 function Main(props: any) {
   const {
@@ -9,7 +9,10 @@ function Main(props: any) {
     handleRefreshToken,
     removeRefreshToken,
     response,
-  } = props
+    setUser,
+    setResponse,
+    cookies,
+  } = props;
   return (
     <div>
       <Map
@@ -19,9 +22,12 @@ function Main(props: any) {
         handleRefreshToken={handleRefreshToken}
         removeRefreshToken={removeRefreshToken}
         response={response}
+        setUser={setUser}
+        setResponse={setResponse}
+        cookies={cookies}
       />
     </div>
-  )
+  );
 }
 
-export default Main
+export default Main;
