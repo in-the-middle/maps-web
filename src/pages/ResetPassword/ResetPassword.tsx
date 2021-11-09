@@ -8,10 +8,14 @@ import {
   InputAdornment,
   TextField,
   Button,
+  InputLabel,
+  FormControl,
 } from "@material-ui/core";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
+
+import MediaQuery from "react-responsive";
 
 import styled from "styled-components";
 
@@ -60,65 +64,150 @@ export default function ResetPassword() {
 
   return (
     <Container>
-      <Content>
-        {!codeSended ? (
-          <div>
-            <CustomInput
-              id="outlined-basic"
-              label="enter your email"
-              variant="outlined"
-              style={{ marginBottom: 20 }}
-              value={email}
-              onChange={(e: any) => setEmail(e.target.value)}
-              onFocus={() => setEmail("")}
-            ></CustomInput>
-            <CustomButton onClick={() => sendCode(email)}>
-              send code
-            </CustomButton>
-          </div>
-        ) : (
-          <div>
-            <CustomInput
-              id="outlined-basic"
-              label="code"
-              variant="outlined"
-              style={{ marginBottom: 20 }}
-              value={code}
-              onChange={(e: any) => setCode(e.target.value)}
-            ></CustomInput>
-            <OutlinedInput
-              id="outlined-adornment-password"
-              type={showPassword ? "text" : "password"}
-              value={newPassword}
-              style={{
-                width: "100%",
-                marginBottom: 20,
-                color: "#000000",
-                outline: "none",
-              }}
-              classes={{ notchedOutline: "visible" }}
-              onChange={(e: any) => setNewPassword(e.target.value)}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    edge="end"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-            <CustomButton onClick={() => handleConfirm()}>confirm</CustomButton>
-            {error ? (
-              <ErrorMessage>
-                {error === "WRONG_CODE" ? "Wrong code" : "Weak password"}
-              </ErrorMessage>
-            ) : null}
-          </div>
-        )}
-      </Content>
+      <MediaQuery minWidth={771}>
+        <Content>
+          {!codeSended ? (
+            <div style={{ width: "100%" }}>
+              <CustomInput
+                id="outlined-basic"
+                label="enter your email"
+                variant="outlined"
+                style={{ marginBottom: 20 }}
+                value={email}
+                onChange={(e: any) => setEmail(e.target.value)}
+                onFocus={() => setEmail("")}
+              ></CustomInput>
+              <CustomButton onClick={() => sendCode(email)}>
+                send code
+              </CustomButton>
+            </div>
+          ) : (
+            <div>
+              <CustomInput
+                id="outlined-basic"
+                label="code"
+                variant="outlined"
+                style={{ marginBottom: 20 }}
+                value={code}
+                onChange={(e: any) => setCode(e.target.value)}
+              ></CustomInput>
+              <FormControl
+                variant="outlined"
+                style={{
+                  width: "100%",
+                  marginBottom: 20,
+                  color: "#000000",
+                  outline: "none",
+                }}
+              >
+                {!newPassword ? (
+                  <InputLabel htmlFor="outlined-adornment-password">
+                    new password
+                  </InputLabel>
+                ) : null}
+                <OutlinedInput
+                  id="outlined-adornment-password"
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  classes={{ notchedOutline: "visible" }}
+                  onChange={(e: any) => setNewPassword(e.target.value)}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        edge="end"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+              <CustomButton onClick={() => handleConfirm()}>
+                confirm
+              </CustomButton>
+              {error ? (
+                <ErrorMessage>
+                  {error === "WRONG_CODE" ? "Wrong code" : "Weak password"}
+                </ErrorMessage>
+              ) : null}
+            </div>
+          )}
+        </Content>
+      </MediaQuery>
+      <MediaQuery maxWidth={770}>
+        <MobileContent>
+          {!codeSended ? (
+            <div style={{ width: "100%" }}>
+              <CustomInput
+                id="outlined-basic"
+                label="enter your email"
+                variant="outlined"
+                style={{ marginBottom: 20 }}
+                value={email}
+                onChange={(e: any) => setEmail(e.target.value)}
+                onFocus={() => setEmail("")}
+              ></CustomInput>
+              <CustomButton onClick={() => sendCode(email)}>
+                send code
+              </CustomButton>
+            </div>
+          ) : (
+            <div>
+              <CustomInput
+                id="outlined-basic"
+                label="code"
+                variant="outlined"
+                style={{ marginBottom: 20 }}
+                value={code}
+                onChange={(e: any) => setCode(e.target.value)}
+              ></CustomInput>
+              <FormControl
+                variant="outlined"
+                style={{
+                  width: "100%",
+                  marginBottom: 20,
+                  color: "#000000",
+                  outline: "none",
+                }}
+              >
+                {!newPassword ? (
+                  <InputLabel htmlFor="outlined-adornment-password">
+                    new password
+                  </InputLabel>
+                ) : null}
+                <OutlinedInput
+                  id="outlined-adornment-password"
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  classes={{ notchedOutline: "visible" }}
+                  onChange={(e: any) => setNewPassword(e.target.value)}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        edge="end"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+              <CustomButton onClick={() => handleConfirm()}>
+                confirm
+              </CustomButton>
+              {error ? (
+                <ErrorMessage>
+                  {error === "WRONG_CODE" ? "Wrong code" : "Weak password"}
+                </ErrorMessage>
+              ) : null}
+            </div>
+          )}
+        </MobileContent>
+      </MediaQuery>
     </Container>
   );
 }
@@ -171,6 +260,7 @@ const CustomButton = styled.button`
   line-height: 24px;
   font-family: "Montserrat", sans-serif;
   font-weight: 400;
+  overflow: hidden;
 
   :hover {
     background: rgba(75, 128, 207, 0.5);
@@ -179,6 +269,13 @@ const CustomButton = styled.button`
 
 const Content = styled.div`
   width: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const MobileContent = styled.div`
+  width: 90%;
   display: flex;
   flex-direction: column;
   align-items: center;

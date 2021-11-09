@@ -10,10 +10,14 @@ import {
   InputAdornment,
   TextField,
   Button,
+  InputLabel,
+  FormControl,
 } from "@material-ui/core";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
+
+import MediaQuery from "react-responsive";
 
 import { UserDTO } from "../../authServiceApi/model";
 import MediaButton from "components/MediaButton/MediaButton";
@@ -125,116 +129,249 @@ export default function Signup({
 
   return (
     <Container>
-      <Content>
-        {!userCreated ? (
-          <div>
-            <CustomInput
-              id="outlined-basic"
-              label="login"
-              variant="outlined"
-              value={username}
-              onChange={(e: any) => setUsername(e.target.value)}
-              style={{ marginBottom: 20 }}
-            ></CustomInput>
-            <CustomInput
-              id="outlined-basic"
-              label="first name"
-              variant="outlined"
-              value={firstName}
-              onChange={(e: any) => setFirstName(e.target.value)}
-              style={{ marginBottom: 20 }}
-            ></CustomInput>
-            <CustomInput
-              id="outlined-basic"
-              label="last name"
-              variant="outlined"
-              value={lastName}
-              onChange={(e: any) => setLastName(e.target.value)}
-              style={{ marginBottom: 20 }}
-            ></CustomInput>
-            <CustomInput
-              id="outlined-basic"
-              label="email"
-              variant="outlined"
-              value={email}
-              onChange={(e: any) => setEmail(e.target.value)}
-              style={{ marginBottom: 20 }}
-            ></CustomInput>
-            <OutlinedInput
-              id="outlined-adornment-password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              style={{
-                width: "100%",
-                marginBottom: 20,
-                color: "#000000",
-                outline: "none",
-              }}
-              classes={{ notchedOutline: "visible" }}
-              onChange={(e: any) => setPassword(e.target.value)}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    edge="end"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
-            />
-            <CustomButton
-              onClick={() =>
-                handleClick(username, firstName, lastName, email, password)
-              }
-            >
-              sign up
-            </CustomButton>
+      <MediaQuery minWidth={740}>
+        <Content>
+          {!userCreated ? (
+            <div>
+              <CustomInput
+                id="outlined-basic"
+                label="login"
+                variant="outlined"
+                value={username}
+                onChange={(e: any) => setUsername(e.target.value)}
+                style={{ marginBottom: 20 }}
+              ></CustomInput>
+              <CustomInput
+                id="outlined-basic"
+                label="first name"
+                variant="outlined"
+                value={firstName}
+                onChange={(e: any) => setFirstName(e.target.value)}
+                style={{ marginBottom: 20 }}
+              ></CustomInput>
+              <CustomInput
+                id="outlined-basic"
+                label="last name"
+                variant="outlined"
+                value={lastName}
+                onChange={(e: any) => setLastName(e.target.value)}
+                style={{ marginBottom: 20 }}
+              ></CustomInput>
+              <CustomInput
+                id="outlined-basic"
+                label="email"
+                variant="outlined"
+                value={email}
+                onChange={(e: any) => setEmail(e.target.value)}
+                style={{ marginBottom: 20 }}
+              ></CustomInput>
+              <FormControl
+                variant="outlined"
+                style={{
+                  width: "100%",
+                  marginBottom: 20,
+                  color: "#000000",
+                  outline: "none",
+                }}
+              >
+                {!password ? (
+                  <InputLabel htmlFor="outlined-adornment-password">
+                    password
+                  </InputLabel>
+                ) : null}
+                <OutlinedInput
+                  id="outlined-adornment-password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  classes={{ notchedOutline: "visible" }}
+                  onChange={(e: any) => setPassword(e.target.value)}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        edge="end"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+              <CustomButton
+                onClick={() =>
+                  handleClick(username, firstName, lastName, email, password)
+                }
+              >
+                sign up
+              </CustomButton>
 
-            <Info>
-              or <Link onClick={() => history.push("/login")}>log in</Link>
-            </Info>
-            <TermsText>
-              By continuing to use InTheMiddle, you agree to our&nbsp;
-              <TermsLink href="/terms-and-conditions" target="_blank">
-                Terms of Service
-              </TermsLink>
-              &nbsp;and&nbsp;
-              <TermsLink href="/privacy" target="_blank">
-                Privacy Policy
-              </TermsLink>
-            </TermsText>
+              <Info>
+                or <Link onClick={() => history.push("/login")}>log in</Link>
+              </Info>
+              <TermsText>
+                By continuing to use InTheMiddle, you agree to our&nbsp;
+                <TermsLink href="/terms-and-conditions" target="_blank">
+                  Terms of Service
+                </TermsLink>
+                &nbsp;and&nbsp;
+                <TermsLink href="/privacy" target="_blank">
+                  Privacy Policy
+                </TermsLink>
+              </TermsText>
 
-            {error ? (
-              <ErrorMessage>
-                {error.includes("EMAIL")
-                  ? "Email already exists!"
-                  : error.includes("USERNAME")
-                  ? "Username already exists!"
-                  : "Weak password!"}
-              </ErrorMessage>
-            ) : null}
-          </div>
-        ) : (
-          <div>
-            <CustomInput
-              id="outlined-basic"
-              label="code"
-              variant="outlined"
-              style={{ marginBottom: 20 }}
-              value={code}
-              onChange={(e: any) => setCode(e.target.value)}
-              onFocus={() => setCode("")}
-            ></CustomInput>
+              {error ? (
+                <ErrorMessage>
+                  {error.includes("EMAIL")
+                    ? "Email already exists!"
+                    : error.includes("USERNAME")
+                    ? "Username already exists!"
+                    : "Weak password!"}
+                </ErrorMessage>
+              ) : null}
+            </div>
+          ) : (
+            <div>
+              <CustomInput
+                id="outlined-basic"
+                label="code"
+                variant="outlined"
+                style={{ marginBottom: 20 }}
+                value={code}
+                onChange={(e: any) => setCode(e.target.value)}
+                onFocus={() => setCode("")}
+              ></CustomInput>
 
-            <CustomButton onClick={() => confirmEmail(code)}>ok</CustomButton>
-            <CustomButton onClick={() => resendCode()}>
-              resend code
-            </CustomButton>
-          </div>
-        )}
-      </Content>
+              <CustomButton onClick={() => confirmEmail(code)}>ok</CustomButton>
+              <CustomButton onClick={() => resendCode()}>
+                resend code
+              </CustomButton>
+            </div>
+          )}
+        </Content>
+      </MediaQuery>
+      <MediaQuery maxWidth={739}>
+        <MobileContent>
+          {!userCreated ? (
+            <div>
+              <CustomInput
+                id="outlined-basic"
+                label="login"
+                variant="outlined"
+                value={username}
+                onChange={(e: any) => setUsername(e.target.value)}
+                style={{ marginBottom: 20 }}
+              ></CustomInput>
+              <CustomInput
+                id="outlined-basic"
+                label="first name"
+                variant="outlined"
+                value={firstName}
+                onChange={(e: any) => setFirstName(e.target.value)}
+                style={{ marginBottom: 20 }}
+              ></CustomInput>
+              <CustomInput
+                id="outlined-basic"
+                label="last name"
+                variant="outlined"
+                value={lastName}
+                onChange={(e: any) => setLastName(e.target.value)}
+                style={{ marginBottom: 20 }}
+              ></CustomInput>
+              <CustomInput
+                id="outlined-basic"
+                label="email"
+                variant="outlined"
+                value={email}
+                onChange={(e: any) => setEmail(e.target.value)}
+                style={{ marginBottom: 20 }}
+              ></CustomInput>
+              <FormControl
+                variant="outlined"
+                style={{
+                  width: "100%",
+                  marginTop: 20,
+                  marginBottom: 20,
+                  color: "#000000",
+                  outline: "none",
+                }}
+              >
+                {!password ? (
+                  <InputLabel htmlFor="outlined-adornment-password">
+                    password
+                  </InputLabel>
+                ) : null}
+                <OutlinedInput
+                  id="outlined-adornment-password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  classes={{ notchedOutline: "visible" }}
+                  onChange={(e: any) => setPassword(e.target.value)}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        edge="end"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+              <CustomButton
+                onClick={() =>
+                  handleClick(username, firstName, lastName, email, password)
+                }
+              >
+                sign up
+              </CustomButton>
+
+              <Info>
+                or <Link onClick={() => history.push("/login")}>log in</Link>
+              </Info>
+              <TermsText>
+                By continuing to use InTheMiddle, you agree to our&nbsp;
+                <TermsLink href="/terms-and-conditions" target="_blank">
+                  Terms of Service
+                </TermsLink>
+                &nbsp;and&nbsp;
+                <TermsLink href="/privacy" target="_blank">
+                  Privacy Policy
+                </TermsLink>
+              </TermsText>
+
+              {error ? (
+                <ErrorMessage>
+                  {error.includes("EMAIL")
+                    ? "Email already exists!"
+                    : error.includes("USERNAME")
+                    ? "Username already exists!"
+                    : "Weak password!"}
+                </ErrorMessage>
+              ) : null}
+            </div>
+          ) : (
+            <div>
+              <CustomInput
+                id="outlined-basic"
+                label="code"
+                variant="outlined"
+                style={{ marginBottom: 20 }}
+                value={code}
+                onChange={(e: any) => setCode(e.target.value)}
+                onFocus={() => setCode("")}
+              ></CustomInput>
+
+              <CustomButton onClick={() => confirmEmail(code)}>ok</CustomButton>
+              <CustomButton onClick={() => resendCode()}>
+                resend code
+              </CustomButton>
+            </div>
+          )}
+        </MobileContent>
+      </MediaQuery>
     </Container>
   );
 }
@@ -295,6 +432,13 @@ const CustomButton = styled.button`
 
 const Content = styled.div`
   width: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const MobileContent = styled.div`
+  width: 90%;
   display: flex;
   flex-direction: column;
   align-items: center;

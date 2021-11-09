@@ -745,6 +745,9 @@ class Map extends React.Component<MapProps, any> {
                   >
                     Settings
                   </SettingsButton>
+                  <ClearButton onClick={() => this.handleLogout()}>
+                    Logout
+                  </ClearButton>
                   <LocationButton
                     onClick={() => {
                       if (this.state.location) userLocationFlag = false;
@@ -759,23 +762,62 @@ class Map extends React.Component<MapProps, any> {
                   </LocationButton>
                 </MobileControlButtonContainer>
               </ButtonContainer>
+              {this.state.firstSearchValue === "@" ? (
+                <FriendsPopup
+                  user={this.props.user}
+                  friends={this.state.friends}
+                  displayedFriends={this.state.displayedFriends}
+                  checkDisplayedFriend={this.checkDisplayedFriend}
+                  addFriendMarker={this.addFriendMarker}
+                  addedFriends={this.state.addedFriends}
+                />
+              ) : null}
               {this.state.settingsMenuOpened ? (
                 <MobileAvoidContainer>
-                  <AvoidSwitch
-                    title={"avoid tolls"}
-                    enabled={this.state.includeTolls}
-                    onPress={() => this.handleTolls()}
-                  />
-                  <AvoidSwitch
-                    title={"avoid highways"}
-                    enabled={this.state.includeHighways}
-                    onPress={() => this.handleHighways()}
-                  />
-                  <AvoidSwitch
-                    title={"avoid ferries"}
-                    enabled={this.state.includeFerries}
-                    onPress={() => this.handleFerries()}
-                  />
+                  <SwitchSettingContainer>
+                    <SwitchSetting
+                      onClick={() =>
+                        this.setState(() => ({
+                          setting: "preferences",
+                        }))
+                      }
+                    >
+                      Preferences
+                    </SwitchSetting>
+                    <SwitchSetting
+                      onClick={() =>
+                        this.setState(() => ({
+                          setting: "friends",
+                        }))
+                      }
+                    >
+                      Friends
+                    </SwitchSetting>
+                  </SwitchSettingContainer>
+                  {this.state.setting === "preferences" ? (
+                    <div>
+                      <AvoidSwitch
+                        title={"avoid tolls"}
+                        enabled={this.state.includeTolls}
+                        onPress={() => this.handleTolls()}
+                      />
+                      <AvoidSwitch
+                        title={"avoid highways"}
+                        enabled={this.state.includeHighways}
+                        onPress={() => this.handleHighways()}
+                      />
+                      <AvoidSwitch
+                        title={"avoid ferries"}
+                        enabled={this.state.includeFerries}
+                        onPress={() => this.handleFerries()}
+                      />
+                    </div>
+                  ) : (
+                    <FriendSettings
+                      user={this.props.user}
+                      changeFriendsList={this.changeFriendsList}
+                    />
+                  )}
                 </MobileAvoidContainer>
               ) : null}
             </MainContainer>
@@ -1068,8 +1110,6 @@ const AvoidContainer = styled.div`
 const MobileAvoidContainer = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 150px;
   width: 100%;
   align-self: center;
   border-radius: 12px;

@@ -2,7 +2,14 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import authService from "components/apiDeclaration/apiDeclaration";
-import { IconButton, InputAdornment, TextField } from "@material-ui/core";
+import {
+  IconButton,
+  InputAdornment,
+  TextField,
+  InputLabel,
+  FormControl,
+} from "@material-ui/core";
+
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
@@ -14,6 +21,8 @@ import styled from "styled-components";
 
 import { AuthenticationDTO } from "../../authServiceApi/model";
 import MediaButton from "components/MediaButton/MediaButton";
+
+import MediaQuery from "react-responsive";
 
 import Apple from "assets/icons/Interface/apple.svg";
 import Google from "assets/icons/Interface/google.svg";
@@ -75,58 +84,134 @@ export default function Login({
 
   return (
     <Container>
-      <Content>
-        <CustomGoogleLogin
-          clientId="75898054002-q3s2968b0374o5jmke2bt2tupacocgjk.apps.googleusercontent.com"
-          buttonText="Log in with Google"
-          onSuccess={responseGoogle}
-          cookiePolicy={"single_host_origin"}
-        />
+      <MediaQuery minWidth={740}>
+        <Content>
+          <CustomGoogleLogin
+            clientId="75898054002-q3s2968b0374o5jmke2bt2tupacocgjk.apps.googleusercontent.com"
+            buttonText="Log in with Google"
+            onSuccess={responseGoogle}
+            cookiePolicy={"single_host_origin"}
+          />
 
-        <CustomInput
-          id="outlined-basic"
-          label="login"
-          variant="outlined"
-          value={username}
-          onChange={(e: any) => setUsername(e.target.value)}
-        ></CustomInput>
-        <OutlinedInput
-          id="outlined-adornment-password"
-          type={showPassword ? "text" : "password"}
-          value={password}
-          style={{
-            width: "100%",
-            marginTop: 20,
-            marginBottom: 20,
-            color: "#000000",
-            outline: "none",
-          }}
-          classes={{ notchedOutline: "visible" }}
-          onChange={(e: any) => setPassword(e.target.value)}
-          endAdornment={
-            <InputAdornment position="end">
-              <IconButton
-                aria-label="toggle password visibility"
-                edge="end"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          }
-        />
-        <CustomButton onClick={() => handleClick(username, password)}>
-          login
-        </CustomButton>
-        <Info>
-          or <Link onClick={() => history.push("/signup")}>sign up</Link>
-        </Info>
-        <Info>
-          <Link onClick={() => history.push("/reset-password")}>
-            reset password
-          </Link>
-        </Info>
-      </Content>
+          <CustomInput
+            id="outlined-basic"
+            label="login"
+            variant="outlined"
+            value={username}
+            onChange={(e: any) => setUsername(e.target.value)}
+          ></CustomInput>
+
+          <FormControl
+            variant="outlined"
+            style={{
+              width: "100%",
+              marginTop: 20,
+              marginBottom: 20,
+              color: "#000000",
+              outline: "none",
+            }}
+          >
+            {!password ? (
+              <InputLabel htmlFor="outlined-adornment-password">
+                password
+              </InputLabel>
+            ) : null}
+            <OutlinedInput
+              id="outlined-adornment-password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              classes={{ notchedOutline: "visible" }}
+              onChange={(e: any) => setPassword(e.target.value)}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    edge="end"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          </FormControl>
+          <CustomButton onClick={() => handleClick(username, password)}>
+            login
+          </CustomButton>
+          <Info>
+            or <Link onClick={() => history.push("/signup")}>sign up</Link>
+          </Info>
+          <Info>
+            <Link onClick={() => history.push("/reset-password")}>
+              reset password
+            </Link>
+          </Info>
+        </Content>
+      </MediaQuery>
+
+      <MediaQuery maxWidth={739}>
+        <MobileContent>
+          <CustomGoogleLogin
+            clientId="75898054002-q3s2968b0374o5jmke2bt2tupacocgjk.apps.googleusercontent.com"
+            buttonText="Log in with Google"
+            onSuccess={responseGoogle}
+            cookiePolicy={"single_host_origin"}
+          />
+
+          <CustomInput
+            id="outlined-basic"
+            label="login"
+            variant="outlined"
+            value={username}
+            onChange={(e: any) => setUsername(e.target.value)}
+          ></CustomInput>
+          <FormControl
+            variant="outlined"
+            style={{
+              width: "100%",
+              marginTop: 20,
+              marginBottom: 20,
+              color: "#000000",
+              outline: "none",
+            }}
+          >
+            {!password ? (
+              <InputLabel htmlFor="outlined-adornment-password">
+                password
+              </InputLabel>
+            ) : null}
+            <OutlinedInput
+              id="outlined-adornment-password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              classes={{ notchedOutline: "visible" }}
+              onChange={(e: any) => setPassword(e.target.value)}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    edge="end"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          </FormControl>
+          <CustomButton onClick={() => handleClick(username, password)}>
+            login
+          </CustomButton>
+          <Info>
+            or <Link onClick={() => history.push("/signup")}>sign up</Link>
+          </Info>
+          <Info>
+            <Link onClick={() => history.push("/reset-password")}>
+              reset password
+            </Link>
+          </Info>
+        </MobileContent>
+      </MediaQuery>
     </Container>
   );
 }
@@ -171,6 +256,13 @@ const CustomButton = styled.button`
 
 const Content = styled.div`
   width: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const MobileContent = styled.div`
+  width: 90%;
   display: flex;
   flex-direction: column;
   align-items: center;
