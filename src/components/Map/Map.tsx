@@ -19,6 +19,7 @@ import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
 import MediaQuery from "react-responsive";
 import fetchIntercept from "fetch-intercept";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 import jwt_decode from "jwt-decode";
 
@@ -745,9 +746,10 @@ class Map extends React.Component<MapProps, any> {
                   >
                     Settings
                   </SettingsButton>
-                  <ClearButton onClick={() => this.handleLogout()}>
-                    Logout
-                  </ClearButton>
+
+                  <LocationButton onClick={() => this.handleLogout()}>
+                    <LogoutIcon sx={{ color: "black" }} />
+                  </LocationButton>
                   <LocationButton
                     onClick={() => {
                       if (this.state.location) userLocationFlag = false;
