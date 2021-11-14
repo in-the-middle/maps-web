@@ -212,6 +212,7 @@ class Map extends React.Component<MapProps, any> {
   }
 
   async componentDidMount() {
+    window.scrollTo(0, 0);
     const interval = setInterval(async () => {
       const response = await authService.getFriendList({
         queryParams: {
@@ -462,40 +463,46 @@ class Map extends React.Component<MapProps, any> {
       console.log(this.props.response.token);
       axios.defaults.headers.common["Authorization"] =
         this.props.response.token;
-      let CenterPoint = await apiService.getCenter({
-        centerInputDTO: usersInfo,
-      });
-      centerLat = CenterPoint.location?.lat!;
-      centerLon = CenterPoint.location?.lon!;
-      centerRoutes = [];
-      for (let i = 0; i < this.state.markers.length; i++) {
-        let APoint = {
-          lat: this.state.markers[i][0],
-          lon: this.state.markers[i][1],
-        };
-        let BPoint = {
-          lat: CenterPoint.location?.lat,
-          lon: CenterPoint.location?.lon,
-        };
-        let route = {
-          mode: this.state.modeDTO,
-          origin: APoint,
-          destination: BPoint,
-          includeTolls: this.state.includeTolls,
-          includeHighways: this.state.includeHighways,
-          includeFerries: this.state.includeFerries,
-        } as RouteInputDTO;
+      try {
+        let CenterPoint = await apiService.getCenter({
+          centerInputDTO: usersInfo,
+        });
+        centerLat = CenterPoint.location?.lat!;
+        centerLon = CenterPoint.location?.lon!;
+        centerRoutes = [];
+        for (let i = 0; i < this.state.markers.length; i++) {
+          let APoint = {
+            lat: this.state.markers[i][0],
+            lon: this.state.markers[i][1],
+          };
+          let BPoint = {
+            lat: CenterPoint.location?.lat,
+            lon: CenterPoint.location?.lon,
+          };
+          let route = {
+            mode: this.state.modeDTO,
+            origin: APoint,
+            destination: BPoint,
+            includeTolls: this.state.includeTolls,
+            includeHighways: this.state.includeHighways,
+            includeFerries: this.state.includeFerries,
+          } as RouteInputDTO;
 
-        console.log(route);
-        let routeResult = await apiService.getRoute({ routeInputDTO: route });
-        let { centerTime } = this.state;
-        centerTime.push(routeResult.summary?.time);
-        this.setState({ centerTime });
-        coords = decode(routeResult.shape);
-        centerRoutes.push(coords);
+          console.log(route);
+          let routeResult = await apiService.getRoute({ routeInputDTO: route });
+          let { centerTime } = this.state;
+          centerTime.push(routeResult.summary?.time);
+          this.setState({ centerTime });
+          coords = decode(routeResult.shape);
+          centerRoutes.push(coords);
+        }
+        this.setState({ builded: true });
+        this.setState({ loading: false });
+      } catch (e) {
+        this.setState({ builded: false });
+        this.setState({ loading: false });
+        alert("Error occured! Try again!");
       }
-      this.setState({ builded: true });
-      this.setState({ loading: false });
     }
   }
 

@@ -38,8 +38,9 @@ export default function ResetPassword() {
           email: email,
         },
       });
-    } catch (e) {
+    } catch (e: any) {
       console.log(e);
+      alert("Invalid email");
     }
     if (response) setCodeSended(true);
   }
@@ -56,7 +57,7 @@ export default function ResetPassword() {
       });
       if (response === "PASSWORD_CHANGED") history.push("/");
       else setError(response);
-    } catch (e) {
+    } catch (e: any) {
       console.log(e);
     }
     console.log(response);

@@ -233,7 +233,11 @@ export default function FriendSettings(props: any) {
             )}
           </ListContainer>
           {sendedRequest === "success" ? (
-            <Notification status="success">Request sended</Notification>
+            <Notification status="success">Request sent</Notification>
+          ) : sendedRequest === "failed" && searched === user.username ? (
+            <Notification status="failure">
+              Can't add yourself to friends
+            </Notification>
           ) : sendedRequest === "failed" ? (
             <Notification status="failure">User doesn't exist</Notification>
           ) : null}
@@ -335,7 +339,7 @@ const FriendTitle = styled.p`
   flex: 0.45;
   font-size: 18px;
   color: #589441;
-  line-height: 10px;
+  line-height: 15px;
   padding: 5px;
   margin: 5px 0 5px 0;
   background-color: "rgba(245, 255, 245, 0.9)";
@@ -347,14 +351,14 @@ const FriendsContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  height: 30px;
+  height: 35px;
 `;
 
 const RequestTitle = styled.p`
   flex: 0.3;
   font-size: 18px;
   color: #589441;
-  line-height: 10px;
+  line-height: 15px;
   padding: 5px;
   margin: 5px 0 5px 0;
   background-color: "rgba(245, 255, 245, 0.9)";
@@ -373,8 +377,8 @@ const DeleteFriendButton = styled.button`
   font-size: 18px;
   color: #eb5160;
   border: 0px;
-  background: rgba(245, 255, 245, 0.9);
-  line-height: 10px;
+  background: transparent;
+  line-height: 20px;
   text-decoration: underline;
 
   :hover {
@@ -387,8 +391,8 @@ const ShareLocationButton = styled.button`
   font-size: 18px;
   color: #01b0e8;
   border: 0px;
-  background: rgba(245, 255, 245, 0.9);
-  line-height: 10px;
+  background: transparent;
+  line-height: 20px;
   text-decoration: underline;
 
   :hover {
